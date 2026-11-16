@@ -1,0 +1,15 @@
+# Base de datos local para desarrollo: docker compose up -d
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: motopit
+      POSTGRES_PASSWORD: motopit
+      POSTGRES_DB: motopit
+    ports:
+      - "5432:5432"
+    volumes:
+      - datos:/var/lib/postgresql/data
+
+volumes:
+  datos:

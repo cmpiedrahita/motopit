@@ -1,0 +1,478 @@
+{
+  "id": "93a06efa-f41a-41c0-84b1-73070a75d414",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.domiciliarios": {
+      "name": "domiciliarios",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "nombre": {
+          "name": "nombre",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "celular": {
+          "name": "celular",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "creado_en": {
+          "name": "creado_en",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "domiciliarios_celular_unique": {
+          "name": "domiciliarios_celular_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "celular"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.mecanicos": {
+      "name": "mecanicos",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "nombre": {
+          "name": "nombre",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "celular": {
+          "name": "celular",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "anios_experiencia": {
+          "name": "anios_experiencia",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "verificado": {
+          "name": "verificado",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "mecanicos_celular_unique": {
+          "name": "mecanicos_celular_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "celular"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.motos": {
+      "name": "motos",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "placa": {
+          "name": "placa",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "marca": {
+          "name": "marca",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "km_actual": {
+          "name": "km_actual",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "km_ultimo_aceite": {
+          "name": "km_ultimo_aceite",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "domiciliario_id": {
+          "name": "domiciliario_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "motos_domiciliario_id_domiciliarios_id_fk": {
+          "name": "motos_domiciliario_id_domiciliarios_id_fk",
+          "tableFrom": "motos",
+          "tableTo": "domiciliarios",
+          "columnsFrom": [
+            "domiciliario_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "motos_placa_unique": {
+          "name": "motos_placa_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "placa"
+          ]
+        },
+        "motos_domiciliario_id_unique": {
+          "name": "motos_domiciliario_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "domiciliario_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.planes": {
+      "name": "planes",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "codigo": {
+          "name": "codigo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nombre": {
+          "name": "nombre",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "precio_mensual": {
+          "name": "precio_mensual",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "incluye": {
+          "name": "incluye",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "no_incluye": {
+          "name": "no_incluye",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "planes_codigo_unique": {
+          "name": "planes_codigo_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "codigo"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.suscripciones": {
+      "name": "suscripciones",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "activa": {
+          "name": "activa",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "desde": {
+          "name": "desde",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "domiciliario_id": {
+          "name": "domiciliario_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "plan_id": {
+          "name": "plan_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "suscripciones_domiciliario_id_domiciliarios_id_fk": {
+          "name": "suscripciones_domiciliario_id_domiciliarios_id_fk",
+          "tableFrom": "suscripciones",
+          "tableTo": "domiciliarios",
+          "columnsFrom": [
+            "domiciliario_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "suscripciones_plan_id_planes_id_fk": {
+          "name": "suscripciones_plan_id_planes_id_fk",
+          "tableFrom": "suscripciones",
+          "tableTo": "planes",
+          "columnsFrom": [
+            "plan_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.visitas": {
+      "name": "visitas",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "direccion": {
+          "name": "direccion",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "fecha": {
+          "name": "fecha",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "franja": {
+          "name": "franja",
+          "type": "franja",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "servicio": {
+          "name": "servicio",
+          "type": "servicio",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "estado": {
+          "name": "estado",
+          "type": "estado_visita",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'PENDIENTE'"
+        },
+        "trabajo_realizado": {
+          "name": "trabajo_realizado",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "km_cierre": {
+          "name": "km_cierre",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "calificacion": {
+          "name": "calificacion",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "creada_en": {
+          "name": "creada_en",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "moto_id": {
+          "name": "moto_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "mecanico_id": {
+          "name": "mecanico_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "visitas_moto_id_motos_id_fk": {
+          "name": "visitas_moto_id_motos_id_fk",
+          "tableFrom": "visitas",
+          "tableTo": "motos",
+          "columnsFrom": [
+            "moto_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "visitas_mecanico_id_mecanicos_id_fk": {
+          "name": "visitas_mecanico_id_mecanicos_id_fk",
+          "tableFrom": "visitas",
+          "tableTo": "mecanicos",
+          "columnsFrom": [
+            "mecanico_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "public.estado_visita": {
+      "name": "estado_visita",
+      "schema": "public",
+      "values": [
+        "PENDIENTE",
+        "ASIGNADA",
+        "COMPLETADA",
+        "CANCELADA"
+      ]
+    },
+    "public.franja": {
+      "name": "franja",
+      "schema": "public",
+      "values": [
+        "MANANA",
+        "TARDE",
+        "NOCHE"
+      ]
+    },
+    "public.servicio": {
+      "name": "servicio",
+      "schema": "public",
+      "values": [
+        "CAMBIO_ACEITE",
+        "FRENOS",
+        "CADENA",
+        "REVISION_GENERAL"
+      ]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
