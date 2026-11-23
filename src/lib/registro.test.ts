@@ -1,7 +1,15 @@
 import { describe, expect, it } from "vitest";
 import { erroresDuplicados, normalizarPlaca, validarRegistro } from "./registro";
 
-const valido = { nombre: "Andrea López", celular: "3001234567", placa: "ABC12D", marca: "Yamaha", km: "15000" };
+const valido = {
+  nombre: "Andrea López",
+  celular: "3001234567",
+  placa: "ABC12D",
+  marca: "Yamaha",
+  km: "15000",
+  pin: "4821",
+  confirmarPin: "4821",
+};
 
 describe("HU-01: registro del domiciliario con su moto", () => {
   it("con nombre, celular, placa, marca y km válidos el registro es aceptado", () => {
@@ -56,6 +64,20 @@ describe("HU-01: registro del domiciliario con su moto", () => {
   it("muestra un error por cada campo vacío", () => {
     const r = validarRegistro({});
     expect(r.ok).toBe(false);
-    if (!r.ok) expect(Object.keys(r.errores).sort()).toEqual(["celular", "km", "marca", "nombre", "placa"]);
+    if (!r.ok) expect(Object.keys(r.errores).sort()).toEqual(["celular", "confirmarPin", "km", "marca", "nombre", "pin", "placa"]);
+  });
+});
+
+describe("HU-18: el registro crea un PIN", () => {
+  it("exige un PIN de 4 números", () => {
+    const r = validarRegistro({ ...valido, pin: "12", confirmarPin: "12" });
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.errores.pin).toBe("El PIN debe tener 4 números");
+  });
+
+  it("el PIN y su confirmación deben coincidir", () => {
+    const r = validarRegistro({ ...valido, confirmarPin: "4822" });
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.errores.confirmarPin).toBe("Los PIN no coinciden");
   });
 });
