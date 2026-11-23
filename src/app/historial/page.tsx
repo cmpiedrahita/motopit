@@ -10,7 +10,7 @@ import type { VisitaDetalle } from "@/lib/tipos";
 
 export default function Historial() {
   const { domiciliarioId, perfil, cargando } = usePerfil();
-  const visitas = useDatos<VisitaDetalle[]>(domiciliarioId ? `/api/visitas?domiciliarioId=${domiciliarioId}` : null);
+  const visitas = useDatos<VisitaDetalle[]>(domiciliarioId ? "/api/visitas" : null);
 
   if (cargando || (visitas.cargando && !visitas.datos)) return <Esqueleto bloques={[60, 90, 160, 160]} />;
   if (!domiciliarioId || !perfil) {

@@ -1,28 +1,10 @@
 "use client";
-// Hooks de las pantallas: sesión (localStorage) y carga de datos desde la API.
+// Hooks de las pantallas: carga de datos desde la API y perfil del domiciliario en sesión.
 import { useCallback, useEffect, useState } from "react";
 import { pedir } from "@/lib/cliente";
-import { borrarSesion, CLAVE_DOMICILIARIO, guardarSesion, leerSesion, type ClaveSesion } from "@/lib/sesion";
 import type { Perfil } from "@/lib/tipos";
 import type { Errores } from "@/lib/validacion";
-
-/** id guardado en localStorage. `undefined` mientras se lee (evita parpadeos al cargar). */
-export function useSesion(clave: ClaveSesion) {
-  const [id, setId] = useState<string | null | undefined>(undefined);
-  useEffect(() => setId(leerSesion(clave)), [clave]);
-  const guardar = useCallback(
-    (valor: string) => {
-      guardarSesion(clave, valor);
-      setId(valor);
-    },
-    [clave],
-  );
-  const borrar = useCallback(() => {
-    borrarSesion(clave);
-    setId(null);
-  }, [clave]);
-  return { id, guardar, borrar };
-}
+import { useSesion } from "./SesionProvider";
 
 type EstadoDatos<T> = { datos?: T; errores?: Errores; status?: number; cargando: boolean };
 
@@ -52,25 +34,25 @@ export function useDatos<T>(url: string | null) {
 }
 
 /**
- * Perfil del domiciliario guardado en la sesión.
- * Si el id ya no existe en la base de datos (404), se borra la sesión.
+ * Perfil del domiciliario con sesión iniciada (HU-18).
+ * Si la sesión ya no es válida (401) o el usuario ya no existe (404), se cierra la sesión.
  */
 export function usePerfil() {
-  const sesion = useSesion(CLAVE_DOMICILIARIO);
-  const perfil = useDatos<Perfil>(sesion.id ? `/api/domiciliarios/${sesion.id}` : null);
-  const { borrar } = sesion;
+  const { domiciliarioId, salir, refrescar } = useSesion();
+  const perfil = useDatos<Perfil>(domiciliarioId ? `/api/domiciliarios/${domiciliarioId}` : null);
 
   useEffect(() => {
-    if (perfil.status === 404) borrar();
-  }, [perfil.status, borrar]);
+    if (perfil.status === 404) salir("domiciliario");
+    if (perfil.status === 401) refrescar();
+  }, [perfil.status, salir, refrescar]);
 
   return {
-    domiciliarioId: sesion.id,
-    salir: sesion.borrar,
+    domiciliarioId,
+    salir: () => salir("domiciliario"),
     perfil: perfil.datos,
     errores: perfil.errores,
-    // Cargando mientras se lee la sesión o mientras llega el perfil.
-    cargando: sesion.id === undefined || (!!sesion.id && perfil.cargando && !perfil.datos),
+    // Cargando mientras se consulta la sesión o mientras llega el perfil.
+    cargando: domiciliarioId === undefined || (!!domiciliarioId && perfil.cargando && !perfil.datos),
     recargar: perfil.recargar,
   };
 }

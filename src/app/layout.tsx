@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import { Icono } from "@/components/Icono";
 import { NavInferior } from "@/components/NavInferior";
+import { SesionProvider } from "@/components/SesionProvider";
 import "./globals.css";
 import "./animaciones.css";
 
@@ -34,8 +35,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             </Link>
           </div>
         </header>
-        <main className="contenido">{children}</main>
-        <NavInferior />
+        <SesionProvider>
+          <main className="contenido">{children}</main>
+          <NavInferior />
+        </SesionProvider>
       </body>
     </html>
   );

@@ -1,22 +1,22 @@
 "use client";
-// HU-01: registro del domiciliario con su moto.
+// HU-01: registro del domiciliario con su moto. HU-18: crea su PIN y queda con la sesión iniciada.
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
-import { useSesion } from "@/components/hooks";
 import { Icono } from "@/components/Icono";
+import { useSesion } from "@/components/SesionProvider";
 import { Aviso, Campo, ErrorGeneral, Placa } from "@/components/ui";
 import { pedir } from "@/lib/cliente";
 import { normalizarPlaca, PLACA_MOTO } from "@/lib/registro";
-import { CLAVE_DOMICILIARIO } from "@/lib/sesion";
 import type { Errores } from "@/lib/validacion";
 
 const MARCAS = ["AKT", "Bajaj", "Honda", "Yamaha", "Suzuki", "TVS", "Hero", "Kymco", "Victory", "KTM"];
 
 export default function Registro() {
   const router = useRouter();
-  const sesion = useSesion(CLAVE_DOMICILIARIO);
-  const [form, setForm] = useState({ nombre: "", celular: "", placa: "", marca: "", km: "" });
+  const { domiciliarioId, refrescar } = useSesion();
+  const [form, setForm] = useState({ nombre: "", celular: "", placa: "", marca: "", km: "", pin: "", confirmarPin: "" });
+  const [registrado, setRegistrado] = useState(false);
   const [errores, setErrores] = useState<Errores>({});
   const [enviando, setEnviando] = useState(false);
 
@@ -36,15 +36,17 @@ export default function Registro() {
     const r = await pedir<{ id: string }>("/api/domiciliarios", { metodo: "POST", cuerpo: form });
     setEnviando(false);
     if (!r.ok) return setErrores(r.errores);
-    sesion.guardar(r.datos.id);
+    // El servidor ya dejó la cookie de sesión; se actualiza el estado de la app.
+    setRegistrado(true);
+    await refrescar();
     // Siguiente paso natural: elegir el plan.
     router.push("/planes?bienvenida=1");
   }
 
-  if (sesion.id) {
+  if (domiciliarioId && !registrado) {
     return (
       <Aviso tipo="info" titulo="Ya estás registrado">
-        <p>Este celular ya tiene una moto registrada en MotoPit.</p>
+        <p>Ya tienes la sesión iniciada con tu moto en MotoPit.</p>
         <Link className="boton pequeno" href="/">
           Ir a mi panel
         </Link>
@@ -77,7 +79,7 @@ export default function Registro() {
         <Campo id="nombre" etiqueta="Nombre completo" error={errores.nombre}>
           <input {...campo("nombre")} autoComplete="name" placeholder="Ej. Andrea López" />
         </Campo>
-        <Campo id="celular" etiqueta="Celular" error={errores.celular} ayuda="10 dígitos. Lo usas para volver a entrar.">
+        <Campo id="celular" etiqueta="Celular" error={errores.celular} ayuda="10 dígitos. Con él y tu PIN vuelves a entrar.">
           <input {...campo("celular")} type="tel" inputMode="numeric" autoComplete="tel" placeholder="300 123 4567" />
         </Campo>
 
@@ -108,6 +110,29 @@ export default function Registro() {
         <Campo id="km" etiqueta="Kilometraje actual" error={errores.km} ayuda="Míralo en el tablero de la moto.">
           <input {...campo("km")} type="number" inputMode="numeric" min={0} placeholder="Ej. 15000" />
         </Campo>
+
+        <p className="etiqueta-seccion" style={{ margin: "12px 0 -6px" }}>
+          Tu PIN
+        </p>
+        <div className="opciones">
+          {(["pin", "confirmarPin"] as const).map((nombre) => (
+            <Campo key={nombre} id={nombre} etiqueta={nombre === "pin" ? "Crea un PIN" : "Repítelo"} error={errores[nombre]}>
+              <input
+                {...campo(nombre)}
+                onChange={(e) => cambiar(nombre)({ target: { value: e.target.value.replace(/\D/g, "") } })}
+                type="password"
+                inputMode="numeric"
+                autoComplete="new-password"
+                maxLength={4}
+                placeholder="••••"
+                style={{ letterSpacing: "0.5em", fontWeight: 700 }}
+              />
+            </Campo>
+          ))}
+        </div>
+        <p className="ayuda" style={{ marginTop: -8 }}>
+          4 números. Con tu celular y este PIN entras desde cualquier dispositivo.
+        </p>
 
         <button className="boton" disabled={enviando} style={{ marginTop: 8 }}>
           {enviando ? "Registrando…" : "Registrarme"}

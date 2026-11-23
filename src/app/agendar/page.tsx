@@ -65,7 +65,7 @@ function Agendar() {
   async function enviar(e: FormEvent) {
     e.preventDefault();
     setEnviando(true);
-    const r = await pedir("/api/visitas", { metodo: "POST", cuerpo: { ...form, domiciliarioId } });
+    const r = await pedir("/api/visitas", { metodo: "POST", cuerpo: form });
     setEnviando(false);
     if (!r.ok) return setErrores(r.errores);
     setAgendada(true);
