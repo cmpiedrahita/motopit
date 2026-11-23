@@ -134,10 +134,10 @@ Corre `npm test`. Commit: `HU-15: regla para cancelar una visita y sus pruebas`.
 
 ### Paso 2 · Endpoint
 
-Crea `src/app/api/visitas/[id]/cancelar/route.ts` con un `PATCH` que reciba `{ domiciliarioId }`. Toma como modelo `src/app/api/visitas/[id]/calificacion/route.ts`, que ya resuelve casi lo mismo:
+Crea `src/app/api/visitas/[id]/cancelar/route.ts` con un `PATCH` (sin cuerpo). Toma como modelo `src/app/api/visitas/[id]/calificacion/route.ts`, que ya resuelve casi lo mismo:
 
-1. Si el `id` no es UUID → `noEncontrado("La visita no existe")`.
-2. Busca la visita haciendo join con `motos` para saber de quién es. Si no existe **o** `motos.domiciliarioId` no es el del cuerpo → 404 (así no se revela que existe).
+1. Obtén el domiciliario de la sesión: `const domiciliarioId = await usuarioEnSesion("domiciliario"); if (!domiciliarioId) return sinSesion();` (de `src/lib/sesion-servidor.ts`). **Nunca** lo tomes del cuerpo de la petición: cualquiera podría mandar el id de otro.
+2. Si el `id` no es UUID → `noEncontrado("La visita no existe")`. Busca la visita haciendo join con `motos` para saber de quién es. Si no existe **o** `motos.domiciliarioId` no es el de la sesión → 404 (así no se revela que existe).
 3. `try { cancelarVisita(visita.estado) } catch { return responderErrores({ general: "Esta visita ya no se puede cancelar" }, 409) }`.
 4. Actualiza con condición para evitar carreras:
    `.where(and(eq(schema.visitas.id, id), inArray(schema.visitas.estado, ["PENDIENTE", "ASIGNADA"])))` con `.returning(...)`. Si no actualizó nada → 409.
@@ -150,7 +150,7 @@ Pruébalo con la app o con un cliente HTTP (Thunder Client, Postman o `curl`). C
 En `src/app/visitas/page.tsx`, dentro de cada tarjeta de la lista **Próximas** (las activas), agrega un botón `className="boton secundario"` que diga "Cancelar visita". Al tocarlo:
 
 1. Pide confirmación: `if (!window.confirm("¿Seguro que quieres cancelar esta visita?")) return;`
-2. Llama `pedir(\`/api/visitas/${v.id}/cancelar\`, { metodo: "PATCH", cuerpo: { domiciliarioId } })`.
+2. Llama `pedir(\`/api/visitas/${v.id}/cancelar\`, { metodo: "PATCH" })` (la cookie de sesión viaja sola).
 3. Si sale bien, `visitas.recargar()`; si no, muestra el error con `<ErrorGeneral mensaje=… />`.
 
 La visita debe pasar sola a **Anteriores** con la etiqueta gris "Cancelada" (eso ya lo pinta `EstadoBadge`). Comprueba también, entrando como mecánico, que ya no aparece en Pendientes. Commit: `HU-15: botón para cancelar en Mis visitas`.
@@ -308,7 +308,7 @@ coverage: {
   reporter: ["text", "html"],
   include: ["src/lib/**"],
   // Archivos que solo corren en el navegador o solo tienen tipos.
-  exclude: ["src/lib/**/*.test.ts", "src/lib/cliente.ts", "src/lib/sesion.ts", "src/lib/tipos.ts"],
+  exclude: ["src/lib/**/*.test.ts", "src/lib/cliente.ts", "src/lib/sesion-servidor.ts", "src/lib/tipos.ts"],
   thresholds: { lines: 80, functions: 80 },
 },
 ```

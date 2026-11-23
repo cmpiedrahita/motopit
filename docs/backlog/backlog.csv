@@ -57,6 +57,7 @@ Historia,HU-16,Escribirle al mecánico asignado por WhatsApp,EP-03,EP-03,Sprint 
 Historia,HU-17,No permitir dos visitas activas para la misma moto el mismo día,EP-02,EP-02,Sprint 3,3,Alta,Yojhan,Sprint Backlog,,"Ver docs/GUIA-APORTES.md"
 Tarea tecnica,T-08,Pruebas de las ayudas de la API y umbral de cobertura en el CI,EP-05,EP-05,Sprint 3,2,Media,Yojhan,Sprint Backlog,,"Ver docs/GUIA-APORTES.md"
 Tarea tecnica,T-09,"Animaciones: escenas de calle, llegada del mecánico, carretera de pasos y celebraciones",EP-05,EP-05,Sprint 3,3,Media,Carlos,Hecho,,"src/components/escenas.tsx, src/components/Celebracion.tsx, src/app/animaciones.css"
+Historia,HU-18,Ingreso con celular y PIN (domiciliarios y mecánicos),EP-01,EP-01,Sprint 3,8,Alta,Carlos,Hecho,,"Como domiciliario o mecánico quiero entrar con mi celular y un PIN para que nadie más pueda ver mis datos ni actuar a mi nombre. CA: (1) PIN de 4 números al registrarse; (2) ingreso con celular y PIN sin revelar si el celular existe; (3) bloqueo 15 min tras 5 intentos; (4) nadie ve ni modifica datos de otro (401/403); (5) el mecánico solo actúa a su nombre; (6) puede cerrar sesión."
 Historia,HU-14,Visita suelta sin suscripción,EP-06,EP-06,,5,Media,,Product Backlog,#11,"Por definir con las preguntas 8 y 9 de la validación (E1 prefiere pagar por uso)."
 Historia,HU-10,Inscribir flota de empresa de mensajería,EP-06,EP-06,,8,Baja,,Product Backlog,#12,Por definir.
 Historia,HU-11,Pago del plan en línea,EP-06,EP-06,,8,Baja,,Product Backlog,#13,Por definir.

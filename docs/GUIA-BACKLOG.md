@@ -106,7 +106,7 @@ Tareas:
 - [x] Reglas `validarRegistro()` y `erroresDuplicados()` en `src/lib/registro.ts` + pruebas
 - [x] API `POST /api/domiciliarios` (201 / 400 / 409)
 - [x] Pantalla `/registro` con vista previa de la placa y errores por campo
-- [x] Ingreso con celular (`/ingresar`) para volver a entrar desde otro dispositivo
+- [x] Ingreso con celular (`/ingresar`) para volver a entrar desde otro dispositivo (en HU-18 se le agregó el PIN)
 - [x] PR revisado y desplegado
 
 **HU-02 · Elegir plan mensual** · issue #2 · EP-01 · 3 pts · Prioridad alta · Miguel
@@ -167,7 +167,7 @@ Criterios de aceptación:
 
 Tareas:
 - [x] Consulta `listarVisitas()` en `src/db/consultas.ts` (visita + moto + mecánico)
-- [x] API `GET /api/visitas?domiciliarioId=`
+- [x] API `GET /api/visitas`
 - [x] Pantalla `/visitas` (próximas y anteriores) y tarjeta "Próxima visita" en el inicio
 - [x] PR revisado y desplegado
 
@@ -257,8 +257,29 @@ Estas son las historias de [GUIA-APORTES.md](GUIA-APORTES.md). Primero hay que c
 | HU-17 | No permitir dos visitas activas para la misma moto el mismo día | EP-02 | 3 | Alta | Yojhan | Sprint Backlog |
 | T-08 | Pruebas de las ayudas de la API y umbral de cobertura en el CI | EP-05 | 2 | Media | Yojhan | Sprint Backlog |
 | T-09 | Animaciones: escenas de calle, llegada del mecánico, carretera de pasos y celebraciones | EP-05 | 3 | Media | Carlos | Hecho |
+| HU-18 | Ingreso con celular y PIN (domiciliarios y mecánicos) | EP-01 | 8 | Alta | Carlos | Hecho |
 
-Criterios de aceptación de cada una: ver [GUIA-APORTES.md](GUIA-APORTES.md).
+Criterios de aceptación de HU-15, HU-16, HU-17 y T-08: ver [GUIA-APORTES.md](GUIA-APORTES.md).
+
+**HU-18 · Ingreso con celular y PIN** · EP-01 · 8 pts · Prioridad alta · Carlos
+
+> **Como** domiciliario o mecánico **quiero** entrar con mi celular y un PIN **para** que nadie más pueda ver mis datos ni actuar a mi nombre.
+
+Criterios de aceptación:
+- [x] Al registrarse, el domiciliario crea un PIN de 4 números (y lo confirma) y queda con la sesión iniciada.
+- [x] Con celular y PIN correctos entra desde cualquier dispositivo; con datos incorrectos ve "Celular o PIN incorrectos", sin revelar si el celular existe.
+- [x] Tras 5 intentos fallidos la cuenta se bloquea 15 minutos.
+- [x] Un usuario no puede ver ni modificar los datos de otro, aunque mande su id en la petición (401 sin sesión, 403 si es de otro).
+- [x] El mecánico entra con su celular y PIN y solo acepta y cierra visitas a su nombre.
+- [x] Puede cerrar su sesión.
+
+Tareas:
+- [x] Reglas `cifrarPin`, `verificarPin`, `crearToken`, `leerToken` y bloqueo por intentos en `src/lib/auth.ts` + pruebas
+- [x] Migración: `pin_hash`, `intentos_fallidos` y `bloqueado_hasta` en domiciliarios y mecánicos
+- [x] API `/api/sesion` (ingresar, consultar, salir) y cookies firmadas `httpOnly`
+- [x] Todas las rutas toman al usuario de la sesión (401 / 403)
+- [x] Pantallas: PIN en el registro, `/ingresar` y ingreso del mecánico
+- [x] Variable `SESSION_SECRET` en Vercel
 
 ### Product Backlog (sin sprint)
 
@@ -278,7 +299,7 @@ Criterios de aceptación de cada una: ver [GUIA-APORTES.md](GUIA-APORTES.md).
 | Sprint 0 | 13 pts | 13 pts | 13 |
 | Sprint 1 | 21 pts | 21 pts | 21 |
 | Sprint 2 | 17 pts | 17 pts | 17 |
-| Sprint 3 | 13 pts | — | — |
+| Sprint 3 | 21 pts | — | — |
 
 **Burndown:** en Jira sale solo (*Reports → Burndown chart*). En Trello o Notion, hagan una tabla con los puntos que faltan cada día del sprint y una gráfica de línea en Excel o Google Sheets; pongan la imagen en la tarjeta de la Sprint Review.
 
