@@ -2,13 +2,17 @@
 import type { ReactNode } from "react";
 import { ESTADOS } from "@/lib/formato";
 import type { EstadoVisita } from "@/lib/visitas";
+import { MotoCargando } from "./escenas";
 import { Estrella, Icono, type NombreIcono } from "./Icono";
 
-/** Placa amarilla de moto colombiana. */
-export function Placa({ placa, pequena = false }: { placa: string; pequena?: boolean }) {
+/** Placa amarilla de moto colombiana. `lista` = formato válido (brilla una vez). */
+export function Placa({ placa, pequena = false, lista = false }: { placa: string; pequena?: boolean; lista?: boolean }) {
   const texto = placa ? `${placa.slice(0, 3)} ${placa.slice(3)}`.trim() : "ABC 12D";
   return (
-    <span className={`placa${pequena ? " pequena" : ""}${placa ? "" : " vacia"}`} aria-label={`Placa ${placa}`}>
+    <span
+      className={`placa${pequena ? " pequena" : ""}${placa ? "" : " vacia"}${lista ? " lista" : ""}`}
+      aria-label={`Placa ${placa}`}
+    >
       <span className="placa-texto">{texto}</span>
       {!pequena && <span className="placa-pais">COLOMBIA</span>}
     </span>
@@ -110,6 +114,7 @@ export function Vacio({ icono, titulo, children }: { icono: NombreIcono; titulo:
 export function Esqueleto({ bloques = [140, 90, 90] }: { bloques?: number[] }) {
   return (
     <div className="pila" aria-busy="true" aria-label="Cargando">
+      <MotoCargando />
       {bloques.map((alto, i) => (
         <div key={i} className="esqueleto" style={{ height: alto }} />
       ))}

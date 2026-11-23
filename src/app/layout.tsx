@@ -4,6 +4,7 @@ import { Plus_Jakarta_Sans } from "next/font/google";
 import { Icono } from "@/components/Icono";
 import { NavInferior } from "@/components/NavInferior";
 import "./globals.css";
+import "./animaciones.css";
 
 const fuente = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--fuente", display: "swap" });
 

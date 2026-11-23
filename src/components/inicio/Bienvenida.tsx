@@ -1,5 +1,6 @@
 // Inicio para quien aún no se ha registrado: propuesta de valor y llamados a la acción.
 import Link from "next/link";
+import { EscenaPortada } from "../escenas";
 import { Icono, type NombreIcono } from "../Icono";
 
 const beneficios: { icono: NombreIcono; titulo: string; texto: string }[] = [
@@ -42,6 +43,7 @@ export function Bienvenida() {
             Ver planes y precios
           </Link>
         </div>
+        <EscenaPortada />
       </section>
 
       <section className="beneficios" aria-label="Beneficios">

@@ -1,0 +1,671 @@
+/* ─────────────────────────────────────────────────────────────
+   Animaciones de MotoPit: escenas de calle, motos, celebraciones
+   y microinteracciones. Todo con CSS; al final se desactiva para
+   quien pidió "reducir movimiento" en su sistema.
+   ───────────────────────────────────────────────────────────── */
+
+/* ───────── Escena: ciudad + calle ───────── */
+.escena {
+  position: relative;
+  overflow: hidden;
+  border-radius: 18px;
+  isolation: isolate;
+}
+
+.escena-oscuro {
+  background: linear-gradient(180deg, #262a33 0%, #16181d 100%);
+}
+
+.escena-claro {
+  background: linear-gradient(180deg, #ffe4cc 0%, #fff4ea 75%);
+}
+
+.escena-sol {
+  position: absolute;
+  top: 14px;
+  right: 26px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #ffb36b;
+  box-shadow: 0 0 0 10px rgba(255, 179, 107, 0.25), 0 0 0 22px rgba(255, 179, 107, 0.12);
+}
+
+.escena-ciudad {
+  position: absolute;
+  left: 0;
+  bottom: 30px;
+  width: 200%;
+  height: 60%;
+  animation: desplazar 28s linear infinite;
+}
+
+.escena-oscuro .edificio {
+  fill: rgba(255, 255, 255, 0.06);
+}
+
+.escena-oscuro .ventana {
+  fill: rgba(255, 209, 102, 0.3);
+}
+
+.escena-claro .edificio {
+  fill: #f3d3b8;
+}
+
+.escena-claro .ventana {
+  fill: #fff7f0;
+}
+
+.escena-carretera {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 30px;
+  background: #2b2f36;
+  border-top: 4px solid #4a505b;
+  overflow: hidden;
+}
+
+.escena-claro .escena-carretera {
+  background: #3a3f47;
+  border-top-color: #c9b8a6;
+}
+
+.escena-carretera::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: calc(100% + 44px);
+  height: 3px;
+  margin-top: -1.5px;
+  background: repeating-linear-gradient(90deg, #f7c600 0 20px, transparent 20px 44px);
+  animation: rayas 0.7s linear infinite;
+}
+
+.escena-rapido .escena-ciudad {
+  animation-duration: 9s;
+}
+
+.escena-rapido .escena-carretera::after {
+  animation-duration: 0.28s;
+}
+
+.escena-quieto .escena-ciudad,
+.escena-quieto .escena-carretera::after {
+  animation: none;
+}
+
+.actor {
+  position: absolute;
+  z-index: 2;
+}
+
+/* ───────── Moto ───────── */
+.moto {
+  display: block;
+  overflow: visible;
+}
+
+.moto .rueda {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.moto.andando .rueda {
+  animation: girar 0.45s linear infinite;
+}
+
+.moto.andando .moto-cuerpo {
+  animation: rebote 0.3s ease-in-out infinite alternate;
+}
+
+.moto.andando .farola {
+  animation: parpadeo 1.6s ease-in-out infinite;
+}
+
+/* Gira solo mientras entra y luego se detiene. */
+.moto.una-vez .rueda {
+  animation-iteration-count: 4;
+}
+
+.moto.una-vez .moto-cuerpo {
+  animation-iteration-count: 6;
+}
+
+.moto.frena .rueda {
+  animation: girar 0.4s cubic-bezier(0.3, 0.6, 0.6, 1) 5;
+}
+
+.moto.frena .moto-cuerpo {
+  animation: rebote 0.3s ease-in-out 7 alternate;
+}
+
+.moto.brilla {
+  animation: brillar 1.4s ease-in-out infinite alternate;
+}
+
+.velocidad {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  width: 30px;
+}
+
+.velocidad i {
+  display: block;
+  height: 2px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.55);
+  animation: viento 0.55s linear infinite;
+}
+
+.velocidad i:nth-child(2) {
+  width: 70%;
+  margin-left: 30%;
+  animation-delay: 0.18s;
+}
+
+.velocidad i:nth-child(3) {
+  width: 85%;
+  animation-delay: 0.32s;
+}
+
+.escena-claro .velocidad i {
+  background: rgba(58, 63, 71, 0.35);
+}
+
+/* Portada: el mecánico se acerca y se aleja detrás del domiciliario. */
+.persecucion {
+  animation: perseguir 4.5s ease-in-out infinite;
+}
+
+.hero .escena {
+  margin: 26px -20px -32px;
+  border-radius: 0;
+}
+
+/* ───────── Llegada del mecánico (al agendar) ───────── */
+.llegando {
+  animation: llegar 2s cubic-bezier(0.15, 0.75, 0.3, 1) both;
+}
+
+.polvo {
+  position: absolute;
+  left: -4px;
+  bottom: 6px;
+}
+
+.polvo i {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(160, 145, 130, 0.55);
+  animation: polvo 0.6s ease-out 3 both;
+}
+
+.polvo i:nth-child(2) {
+  left: -10px;
+  bottom: 6px;
+  animation-delay: 0.2s;
+}
+
+.polvo i:nth-child(3) {
+  left: -2px;
+  bottom: 12px;
+  width: 8px;
+  height: 8px;
+  animation-delay: 0.4s;
+}
+
+.globo {
+  position: absolute;
+  top: -22px;
+  left: 54%;
+  padding: 5px 10px;
+  border-radius: 12px;
+  background: #fff;
+  color: var(--texto);
+  font-size: 0.78rem;
+  font-weight: 800;
+  white-space: nowrap;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+  transform-origin: bottom left;
+  animation: aparecer-globo 0.4s cubic-bezier(0.2, 0.8, 0.3, 1.4) 2.05s both;
+}
+
+.globo::after {
+  content: "";
+  position: absolute;
+  left: 10px;
+  bottom: -5px;
+  border: 6px solid transparent;
+  border-top-color: #fff;
+  border-bottom: 0;
+}
+
+.pin-destino {
+  position: absolute;
+  left: 50%;
+  top: -36px;
+  margin-left: -15px;
+  animation: saltar 0.9s ease-in-out infinite alternate;
+  filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.15));
+}
+
+.escena-llegada {
+  margin-bottom: 18px;
+}
+
+/* ───────── Visita asignada / pendiente ───────── */
+.escena-mini {
+  margin-top: 12px;
+  border-radius: 12px;
+}
+
+.en-camino-texto {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0 0;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--info);
+}
+
+.buscando {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 12px 0 0;
+  color: var(--suave);
+  font-size: 0.9rem;
+}
+
+.radar {
+  position: relative;
+  flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--primario);
+}
+
+.radar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid var(--primario);
+  animation: radar 1.4s ease-out infinite;
+}
+
+/* ───────── Carga ───────── */
+.cargando-ruta {
+  position: relative;
+  height: 48px;
+  overflow: hidden;
+  border-bottom: 3px dashed var(--borde);
+  margin-bottom: 4px;
+}
+
+.cargando-moto {
+  position: absolute;
+  bottom: -2px;
+  animation: cruzar 2.6s linear infinite;
+}
+
+/* ───────── HU-07: ruta del aceite ───────── */
+.ruta-aceite {
+  position: relative;
+  height: 60px;
+  margin: 8px 0 6px;
+}
+
+.ruta-aceite::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 4px;
+  height: 16px;
+  border-radius: 8px;
+  background: #3a3f47;
+}
+
+.ruta-aceite::after {
+  content: "";
+  position: absolute;
+  left: 10px;
+  right: 30px;
+  bottom: 11px;
+  height: 2px;
+  background: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.65) 0 10px, transparent 10px 20px);
+}
+
+.ruta-recorrido {
+  position: absolute;
+  z-index: 1;
+  left: 0;
+  bottom: 4px;
+  height: 16px;
+  border-radius: 8px;
+  width: calc(var(--p) * (100% - 76px) + 30px);
+  background: linear-gradient(90deg, #22c55e, #84cc16);
+  opacity: 0.85;
+  animation: crecer 1.6s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+
+.ruta-cerca .ruta-recorrido {
+  background: linear-gradient(90deg, #f59e0b, var(--primario));
+}
+
+.ruta-vencido .ruta-recorrido {
+  background: linear-gradient(90deg, var(--primario), var(--peligro));
+}
+
+.ruta-moto {
+  position: absolute;
+  z-index: 2;
+  bottom: 8px;
+  left: calc(var(--p) * (100% - 76px));
+  animation: entrar-ruta 1.6s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+
+.ruta-meta {
+  position: absolute;
+  z-index: 2;
+  right: 2px;
+  bottom: 14px;
+}
+
+.ruta-vencido .ruta-meta {
+  animation: saltar 0.8s ease-in-out infinite alternate;
+}
+
+/* ───────── HU-03: carretera de pasos ───────── */
+.carretera-pasos {
+  position: sticky;
+  top: 56px;
+  z-index: 10;
+  margin: 0 -20px 18px;
+  padding: 8px 20px 10px;
+  background: rgba(244, 243, 239, 0.94);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--borde);
+}
+
+.cp-via {
+  position: relative;
+  height: 52px;
+}
+
+.cp-via::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 2px;
+  height: 14px;
+  border-radius: 7px;
+  background: #3a3f47;
+}
+
+.cp-via::after {
+  content: "";
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  height: 2px;
+  background: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.6) 0 10px, transparent 10px 20px);
+}
+
+.cp-avance {
+  position: absolute;
+  z-index: 1;
+  left: 0;
+  bottom: 2px;
+  height: 14px;
+  border-radius: 7px;
+  background: linear-gradient(90deg, #f59e0b, var(--primario));
+  transition: width 0.9s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+.cp-moto {
+  position: absolute;
+  z-index: 2;
+  bottom: 5px;
+  transition: left 0.9s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+.cp-paradas {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  margin: 8px 0 0;
+  padding: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--tenue);
+}
+
+.cp-paradas li {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: color 0.3s;
+}
+
+.cp-paradas li.lista {
+  color: var(--exito);
+}
+
+.cp-punto {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  font-size: 0.62rem;
+}
+
+.cp-paradas li.lista .cp-punto {
+  background: var(--exito);
+  border-color: var(--exito);
+  color: #fff;
+  animation: pop 0.35s ease;
+}
+
+/* ───────── Celebraciones del mecánico ───────── */
+.celebracion {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(10, 11, 14, 0.78);
+  backdrop-filter: blur(4px);
+  cursor: pointer;
+  animation: fundido 0.25s ease both;
+}
+
+.celebracion-tarjeta {
+  width: min(420px, 100%);
+  overflow: hidden;
+  border-radius: 24px;
+  background: var(--superficie);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.35);
+  animation: subir 0.5s cubic-bezier(0.2, 0.8, 0.3, 1.25) both;
+}
+
+.celebracion-tarjeta .escena {
+  border-radius: 0;
+}
+
+.celebracion-texto {
+  padding: 20px 22px 22px;
+  text-align: center;
+}
+
+.celebracion-texto strong {
+  display: block;
+  font-size: 1.45rem;
+  letter-spacing: -0.02em;
+}
+
+.celebracion-texto p {
+  margin: 6px 0 10px;
+  color: var(--suave);
+}
+
+.celebracion-pista {
+  font-size: 0.75rem;
+  color: var(--tenue);
+}
+
+.llave-giro {
+  position: absolute;
+  left: 50%;
+  top: -46px;
+  margin-left: -17px;
+  animation: girar-llave 1.1s ease-in-out infinite;
+}
+
+.destellos i {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  background: #f7c600;
+  clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+  animation: destello 1.5s ease-in-out infinite;
+}
+
+.destellos i:nth-child(1) { left: -6px; top: 4px; }
+.destellos i:nth-child(2) { left: 30px; top: -20px; animation-delay: 0.3s; }
+.destellos i:nth-child(3) { right: 2px; top: -6px; animation-delay: 0.6s; width: 12px; height: 12px; }
+.destellos i:nth-child(4) { right: -14px; top: 30px; animation-delay: 0.9s; }
+.destellos i:nth-child(5) { left: 58px; top: 10px; animation-delay: 1.2s; width: 7px; height: 7px; }
+
+/* ───────── Microinteracciones ───────── */
+.tarjeta,
+.aviso,
+.acceso,
+.vacio,
+.beneficio {
+  animation: entrar 0.45s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+
+.pila > :nth-child(2),
+.beneficios > :nth-child(2),
+.accesos > :nth-child(2) { animation-delay: 0.06s; }
+.pila > :nth-child(3),
+.beneficios > :nth-child(3),
+.accesos > :nth-child(3) { animation-delay: 0.12s; }
+.pila > :nth-child(4),
+.beneficios > :nth-child(4),
+.accesos > :nth-child(4) { animation-delay: 0.18s; }
+.pila > :nth-child(5) { animation-delay: 0.24s; }
+.pila > :nth-child(n + 6) { animation-delay: 0.3s; }
+
+.opcion:has(input:checked) svg,
+.selector-estrellas button.activa svg {
+  animation: pop 0.35s ease;
+}
+
+.boton svg {
+  transition: transform 0.2s;
+}
+
+.boton:hover svg:last-child {
+  transform: translateX(3px);
+}
+
+.acceso:hover span:first-child svg {
+  animation: pop 0.35s ease;
+}
+
+.placa {
+  position: relative;
+  overflow: hidden;
+}
+
+.placa.lista {
+  animation: pop 0.4s ease;
+}
+
+.placa.lista::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 30%, rgba(255, 255, 255, 0.75) 50%, transparent 70%);
+  animation: brillo-placa 1s 0.1s ease-out both;
+}
+
+/* ───────── Keyframes ───────── */
+@keyframes girar { to { transform: rotate(360deg); } }
+@keyframes rebote { from { transform: translateY(0); } to { transform: translateY(-1.6px); } }
+@keyframes parpadeo { 50% { opacity: 0.55; } }
+@keyframes desplazar { to { transform: translateX(-50%); } }
+@keyframes rayas { to { transform: translateX(-44px); } }
+@keyframes viento {
+  from { transform: translateX(12px); opacity: 0; }
+  30% { opacity: 1; }
+  to { transform: translateX(-26px); opacity: 0; }
+}
+@keyframes perseguir { 50% { transform: translateX(22px); } }
+@keyframes llegar { from { transform: translateX(-340px); } }
+@keyframes polvo {
+  from { transform: translate(0, 0) scale(0.4); opacity: 0.9; }
+  to { transform: translate(-22px, -10px) scale(1.6); opacity: 0; }
+}
+@keyframes aparecer-globo { from { transform: scale(0); opacity: 0; } }
+@keyframes saltar { to { transform: translateY(-7px); } }
+@keyframes radar { to { transform: scale(2.8); opacity: 0; } }
+@keyframes cruzar { from { left: -64px; } to { left: 100%; } }
+@keyframes crecer { from { width: 30px; } }
+@keyframes entrar-ruta { from { left: 0; } }
+@keyframes fundido { from { opacity: 0; } }
+@keyframes subir { from { transform: translateY(40px) scale(0.92); opacity: 0; } }
+@keyframes girar-llave {
+  0%, 100% { transform: rotate(-25deg); }
+  50% { transform: rotate(25deg); }
+}
+@keyframes destello {
+  0%, 100% { transform: scale(0) rotate(0); opacity: 0; }
+  50% { transform: scale(1) rotate(45deg); opacity: 1; }
+}
+@keyframes brillar {
+  from { filter: drop-shadow(0 0 0 rgba(247, 198, 0, 0)); }
+  to { filter: drop-shadow(0 0 12px rgba(247, 198, 0, 0.7)); }
+}
+@keyframes entrar { from { opacity: 0; transform: translateY(10px); } }
+@keyframes pop { 50% { transform: scale(1.25); } }
+@keyframes brillo-placa {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(100%); }
+}
+
+@media (min-width: 560px) {
+  .hero .escena {
+    margin: 26px -28px -40px;
+    border-radius: 0 0 24px 24px;
+  }
+}
+
+/* Quien pidió reducir movimiento ve las escenas quietas en su estado final. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0s !important;
+    transition-duration: 0.01ms !important;
+  }
+}

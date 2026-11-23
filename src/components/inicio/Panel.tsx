@@ -7,6 +7,7 @@ import { pedir } from "@/lib/cliente";
 import { FRANJAS, SERVICIOS, formatearFecha, formatearKm, formatearPesos } from "@/lib/formato";
 import { INTERVALO_ACEITE_KM, type Recordatorio } from "@/lib/mantenimiento";
 import type { Perfil, VisitaDetalle } from "@/lib/tipos";
+import { RutaAceite } from "../escenas";
 import { useDatos } from "../hooks";
 import { Icono, type NombreIcono } from "../Icono";
 import { Aviso, Campo, EstadoBadge, Placa } from "../ui";
@@ -95,7 +96,7 @@ function AvisoAceite({ recordatorio }: { recordatorio: Recordatorio }) {
 }
 
 function TarjetaAceite({ recordatorio }: { recordatorio: Recordatorio }) {
-  const clase = recordatorio.vencido ? "vencido" : recordatorio.mostrarAviso ? "cerca" : "";
+  const estado = recordatorio.vencido ? "vencido" : recordatorio.mostrarAviso ? "cerca" : "ok";
   return (
     <div className="tarjeta">
       <div className="fila">
@@ -105,14 +106,8 @@ function TarjetaAceite({ recordatorio }: { recordatorio: Recordatorio }) {
         </div>
         <strong style={{ whiteSpace: "nowrap" }}>{formatearKm(recordatorio.proximoCambioKm)}</strong>
       </div>
-      <div
-        className="progreso"
-        role="progressbar"
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-valuenow={Math.round(recordatorio.progreso * 100)}
-      >
-        <div className={`progreso-barra ${clase}`} style={{ width: `${Math.max(4, recordatorio.progreso * 100)}%` }} />
+      <div role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(recordatorio.progreso * 100)}>
+        <RutaAceite progreso={recordatorio.progreso} estado={estado} />
       </div>
       <p className="meta" style={{ margin: 0 }}>
         {recordatorio.faltanKm > 0

@@ -7,7 +7,7 @@ import { useSesion } from "@/components/hooks";
 import { Icono } from "@/components/Icono";
 import { Aviso, Campo, ErrorGeneral, Placa } from "@/components/ui";
 import { pedir } from "@/lib/cliente";
-import { normalizarPlaca } from "@/lib/registro";
+import { normalizarPlaca, PLACA_MOTO } from "@/lib/registro";
 import { CLAVE_DOMICILIARIO } from "@/lib/sesion";
 import type { Errores } from "@/lib/validacion";
 
@@ -85,7 +85,7 @@ export default function Registro() {
           Tu moto
         </p>
         <div className="tarjeta" style={{ display: "grid", placeItems: "center", padding: 20, background: "var(--superficie-2)" }}>
-          <Placa placa={normalizarPlaca(form.placa).slice(0, 6)} />
+          <Placa placa={normalizarPlaca(form.placa).slice(0, 6)} lista={PLACA_MOTO.test(normalizarPlaca(form.placa))} />
         </div>
         <Campo id="placa" etiqueta="Placa" error={errores.placa} ayuda="Formato de moto: 3 letras, 2 números y 1 letra.">
           <input
