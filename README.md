@@ -28,8 +28,6 @@ Proyecto final de Ingeniería de Software (Scrum · Lean · Océano azul · DevO
 | HU-13 | Perfil verificado del mecánico y calificación de 1 a 5 | `/visitas`, `/mecanico` |
 | HU-18 | Ingreso con celular y PIN para domiciliarios y mecánicos; cada uno solo ve y toca lo suyo | `/ingresar`, `/mecanico` |
 
-Las historias pendientes y las del Sprint 3 están en [docs/GUIA-BACKLOG.md](docs/GUIA-BACKLOG.md).
-
 ### Demo en 5 minutos (Sprint Review)
 
 1. **Inicio** → *Registrar mi moto*. Prueba primero una placa mala (`ABC123`) y un km negativo para mostrar los errores. Crea tu PIN de 4 números.
@@ -120,7 +118,7 @@ npm run dev                   # http://localhost:3000
 
 ## Flujo de trabajo
 
-1. Cada historia es un issue (`HU-XX`) en GitHub y una tarjeta en el tablero Scrum (ver [docs/GUIA-BACKLOG.md](docs/GUIA-BACKLOG.md)).
+1. Cada historia es un issue (`HU-XX`) en GitHub y una tarjeta en el tablero Scrum del equipo.
 2. Se crea una rama desde `main`: `feature/HU-03-agendar-visita`.
 3. Los commits empiezan con el ID de la historia: `HU-03: valida fecha pasada al agendar`.
 4. Se abre un PR con la plantilla y `Cierra #<issue>`. El CI tiene que pasar.
@@ -128,8 +126,6 @@ npm run dev                   # http://localhost:3000
 6. Merge a `main` → Vercel despliega solo → se revisa `/api/health`.
 
 `main` está protegida: requiere PR, 1 aprobación y el check `CI / validar` en verde.
-
-Para empezar a aportar código, ver [docs/GUIA-APORTES.md](docs/GUIA-APORTES.md).
 
 ## Despliegue (entorno de demo)
 

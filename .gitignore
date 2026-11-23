@@ -40,3 +40,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Guías internas del equipo (se comparten por fuera del repo)
+docs/GUIA-APORTES.md
+docs/GUIA-BACKLOG.md
+docs/backlog/
