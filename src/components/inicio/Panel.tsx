@@ -33,7 +33,7 @@ export function Panel({ perfil, onCambio, onSalir }: { perfil: Perfil; onCambio:
         )}
         <TarjetaMoto perfil={perfil} onCambio={onCambio} />
         <TarjetaAceite recordatorio={perfil.recordatorio} />
-        <ProximaVisita domiciliarioId={perfil.domiciliario.id} />
+        <ProximaVisita />
         {perfil.plan && (
           <div className="tarjeta fila">
             <div>
@@ -194,8 +194,8 @@ function TarjetaMoto({ perfil, onCambio }: { perfil: Perfil; onCambio: () => voi
 }
 
 // HU-05: la visita activa más próxima, con su estado.
-function ProximaVisita({ domiciliarioId }: { domiciliarioId: string }) {
-  const { datos: visitas } = useDatos<VisitaDetalle[]>(`/api/visitas?domiciliarioId=${domiciliarioId}`);
+function ProximaVisita() {
+  const { datos: visitas } = useDatos<VisitaDetalle[]>("/api/visitas");
   const proxima = visitas
     ?.filter((v) => v.estado === "PENDIENTE" || v.estado === "ASIGNADA")
     .sort((a, b) => a.fecha.localeCompare(b.fecha))[0];

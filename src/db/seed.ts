@@ -1,7 +1,11 @@
 // Datos iniciales para el entorno de demo: planes y mecánicos aliados.
 // Uso: npm run db:seed
 import "dotenv/config";
+import { cifrarPin } from "../lib/auth";
 import { getDb, schema } from "./index";
+
+// HU-18: PIN de los mecánicos de demo (está en el README). Solo para el entorno de demostración.
+const PIN_DEMO = "1234";
 
 const planes = [
   {
@@ -32,15 +36,16 @@ async function main() {
   await db.insert(schema.planes).values(planes).onConflictDoNothing({ target: schema.planes.codigo });
   // Si el mecánico ya existe (mismo celular) se actualizan sus datos: el seed se puede correr varias veces.
   for (const m of mecanicos) {
+    const pinHash = cifrarPin(PIN_DEMO);
     await db
       .insert(schema.mecanicos)
-      .values(m)
+      .values({ ...m, pinHash })
       .onConflictDoUpdate({
         target: schema.mecanicos.celular,
-        set: { nombre: m.nombre, aniosExperiencia: m.aniosExperiencia, verificado: m.verificado },
+        set: { nombre: m.nombre, aniosExperiencia: m.aniosExperiencia, verificado: m.verificado, pinHash },
       });
   }
-  console.log(`Seed listo: ${planes.length} planes, ${mecanicos.length} mecánicos`);
+  console.log(`Seed listo: ${planes.length} planes, ${mecanicos.length} mecánicos (PIN de demo: ${PIN_DEMO})`);
   process.exit(0);
 }
 

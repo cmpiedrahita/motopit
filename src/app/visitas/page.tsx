@@ -15,7 +15,7 @@ import type { VisitaDetalle } from "@/lib/tipos";
 
 export default function MisVisitas() {
   const { domiciliarioId, cargando: cargandoSesion } = usePerfil();
-  const visitas = useDatos<VisitaDetalle[]>(domiciliarioId ? `/api/visitas?domiciliarioId=${domiciliarioId}` : null);
+  const visitas = useDatos<VisitaDetalle[]>(domiciliarioId ? "/api/visitas" : null);
 
   if (cargandoSesion || (visitas.cargando && !visitas.datos)) return <Esqueleto bloques={[60, 160, 160]} />;
   if (!domiciliarioId) {
@@ -86,7 +86,7 @@ export default function MisVisitas() {
               <TarjetaVisita key={v.id} visita={v}>
                 {v.mecanico && <PerfilMecanico mecanico={v.mecanico} titulo="Te atendió" />}
                 {v.estado === "COMPLETADA" && (
-                  <Calificacion visita={v} domiciliarioId={domiciliarioId} onCalificada={visitas.recargar} />
+                  <Calificacion visita={v} onCalificada={visitas.recargar} />
                 )}
               </TarjetaVisita>
             ))}
@@ -97,15 +97,7 @@ export default function MisVisitas() {
   );
 }
 
-function Calificacion({
-  visita,
-  domiciliarioId,
-  onCalificada,
-}: {
-  visita: VisitaDetalle;
-  domiciliarioId: string;
-  onCalificada: () => void;
-}) {
+function Calificacion({ visita, onCalificada }: { visita: VisitaDetalle; onCalificada: () => void }) {
   const [valor, setValor] = useState(0);
   const [error, setError] = useState<string>();
   const [enviando, setEnviando] = useState(false);
@@ -123,7 +115,7 @@ function Calificacion({
     setEnviando(true);
     const r = await pedir(`/api/visitas/${visita.id}/calificacion`, {
       metodo: "POST",
-      cuerpo: { domiciliarioId, calificacion: valor },
+      cuerpo: { calificacion: valor },
     });
     setEnviando(false);
     if (!r.ok) return setError(r.errores.calificacion ?? r.errores.general);

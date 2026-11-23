@@ -3,16 +3,17 @@ import { and, eq } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { listarVisitas } from "@/db/consultas";
 import { validarAgenda } from "@/lib/agenda";
-import { errorInterno, esUuid, leerCuerpo, noEncontrado, responderErrores } from "@/lib/api";
+import { errorInterno, leerCuerpo, noEncontrado, responderErrores } from "@/lib/api";
 import { fechaADate, hoyEnBogota } from "@/lib/formato";
 import { logger } from "@/lib/logger";
+import { sinSesion, usuarioEnSesion } from "@/lib/sesion-servidor";
 
 export const dynamic = "force-dynamic";
 
-// GET /api/visitas?domiciliarioId=... → HU-05 y HU-09: visitas del domiciliario con su estado y mecánico.
-export async function GET(req: Request) {
-  const domiciliarioId = new URL(req.url).searchParams.get("domiciliarioId");
-  if (!esUuid(domiciliarioId)) return responderErrores({ domiciliarioId: "Falta el domiciliario" }, 400);
+// GET /api/visitas → HU-05 y HU-09: visitas del domiciliario en sesión, con su estado y mecánico.
+export async function GET() {
+  const domiciliarioId = await usuarioEnSesion("domiciliario");
+  if (!domiciliarioId) return sinSesion();
   try {
     return NextResponse.json(await listarVisitas(eq(schema.motos.domiciliarioId, domiciliarioId)));
   } catch (error) {
@@ -21,11 +22,12 @@ export async function GET(req: Request) {
 }
 
 // POST /api/visitas → HU-03: agenda una visita donde está la moto. Queda PENDIENTE.
-// 201 { id, estado } · 400 datos inválidos · 404 domiciliario sin moto · 409 sin plan activo.
+// 201 { id, estado } · 400 datos inválidos · 401 sin sesión · 404 domiciliario sin moto · 409 sin plan activo.
 export async function POST(req: Request) {
-  const cuerpo = await leerCuerpo(req);
-  if (!esUuid(cuerpo.domiciliarioId)) return responderErrores({ domiciliarioId: "Falta el domiciliario" }, 400);
-  const domiciliarioId = cuerpo.domiciliarioId;
+  const domiciliarioId = await usuarioEnSesion("domiciliario");
+  if (!domiciliarioId) return sinSesion();
+  // HU-18: el domiciliario sale de la sesión, nunca del cuerpo de la petición.
+  const cuerpo = { ...(await leerCuerpo(req)), domiciliarioId };
 
   try {
     const db = getDb();

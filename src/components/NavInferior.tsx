@@ -1,11 +1,10 @@
 "use client";
 // Barra de navegación inferior (estilo app) para el domiciliario.
-// Solo aparece cuando hay sesión y fuera de las pantallas del mecánico y del registro.
+// Solo aparece cuando hay sesión de domiciliario y fuera de las pantallas del mecánico y del registro.
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
-import { CLAVE_DOMICILIARIO, leerSesion } from "@/lib/sesion";
 import { Icono, type NombreIcono } from "./Icono";
+import { useSesion } from "./SesionProvider";
 
 const enlaces: { href: string; texto: string; icono: NombreIcono }[] = [
   { href: "/", texto: "Inicio", icono: "casa" },
@@ -19,12 +18,9 @@ const ocultaEn = ["/mecanico", "/registro", "/ingresar"];
 
 export function NavInferior() {
   const ruta = usePathname();
-  const [conSesion, setConSesion] = useState(false);
+  const { domiciliarioId } = useSesion();
 
-  // Se vuelve a leer en cada cambio de ruta: así aparece justo después de registrarse.
-  useEffect(() => setConSesion(!!leerSesion(CLAVE_DOMICILIARIO)), [ruta]);
-
-  if (!conSesion || ocultaEn.some((r) => ruta.startsWith(r))) return null;
+  if (!domiciliarioId || ocultaEn.some((r) => ruta.startsWith(r))) return null;
 
   return (
     <nav className="nav-inferior" aria-label="Navegación principal">

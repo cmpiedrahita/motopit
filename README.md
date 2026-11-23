@@ -26,16 +26,17 @@ Proyecto final de Ingeniería de Software (Scrum · Lean · Océano azul · DevO
 | HU-08 | Actualiza el kilometraje en un paso | `/` (inicio) |
 | HU-09 | Historial de mantenimientos de la moto | `/historial` |
 | HU-13 | Perfil verificado del mecánico y calificación de 1 a 5 | `/visitas`, `/mecanico` |
+| HU-18 | Ingreso con celular y PIN para domiciliarios y mecánicos; cada uno solo ve y toca lo suyo | `/ingresar`, `/mecanico` |
 
 Las historias pendientes y las del Sprint 3 están en [docs/GUIA-BACKLOG.md](docs/GUIA-BACKLOG.md).
 
 ### Demo en 5 minutos (Sprint Review)
 
-1. **Inicio** → *Registrar mi moto*. Prueba primero una placa mala (`ABC123`) y un km negativo para mostrar los errores.
+1. **Inicio** → *Registrar mi moto*. Prueba primero una placa mala (`ABC123`) y un km negativo para mostrar los errores. Crea tu PIN de 4 números.
 2. Al registrarte te lleva a **Planes**: elige el Básico, luego cámbiate al Full (solo uno queda activo).
 3. En el inicio, **Actualizar** km sumando unos 1.750 km → aparece el aviso de cambio de aceite (HU-07).
 4. Toca *Agendar cambio de aceite* → llena la visita → queda **Pendiente**.
-5. Arriba a la derecha, **Soy mecánico** → elige a *Jhon Fredy Ríos* → *Aceptar visita*.
+5. Arriba a la derecha, **Soy mecánico** → ingresa como *Jhon Fredy Ríos* (celular `3000000001`, PIN `1234`) → *Aceptar visita*. La sesión del domiciliario sigue abierta en el mismo navegador.
 6. Vuelve como domiciliario a **Visitas**: ya se ve el perfil verificado del mecánico (HU-13).
 7. Como mecánico, en *Mis visitas* → **Cerrar visita** con trabajo y km.
 8. Como domiciliario: califica con estrellas en **Visitas** y revisa el **Historial**. El aviso de aceite desaparece.
@@ -62,7 +63,8 @@ src/
 │   ├── calificaciones.ts  HU-13  promedio y calificación 1 a 5
 │   ├── validacion.ts      Errores de Zod → { campo: mensaje }
 │   ├── formato.ts         Pesos, km, fechas (hora de Colombia), etiquetas
-│   └── api.ts / cliente.ts / sesion.ts   Ayudas de servidor, de cliente y localStorage
+│   ├── auth.ts            HU-18  PIN cifrado, token de sesión firmado, bloqueo por intentos
+│   └── api.ts / cliente.ts / sesion-servidor.ts   Ayudas de servidor, de cliente y cookies de sesión
 ├── db/             Esquema, conexión, consultas compartidas y seed
 ├── app/api/        Rutas de la API (validan con src/lib y usan la base de datos)
 ├── app/<pantalla>/ Pantallas (mobile-first)
@@ -71,17 +73,18 @@ src/
 
 ## API
 
-Errores siempre con la forma `{ "errores": { "campo": "mensaje" } }`.
+Errores siempre con la forma `{ "errores": { "campo": "mensaje" } }`. Salvo `planes`, `mecanicos`, `health`, `sesion` y el registro, todas las rutas exigen sesión: responden **401** sin ella y **403** si el recurso es de otro usuario. El usuario siempre sale de la cookie de sesión, nunca del cuerpo de la petición.
 
 | Método y ruta | Historia | Respuestas |
 | --- | --- | --- |
 | `POST /api/domiciliarios` | HU-01 | 201 · 400 · 409 placa/celular repetidos |
-| `GET /api/domiciliarios?celular=` | Ingresar | 200 · 404 |
+| `POST /api/sesion` | HU-18 | 200 · 400 · 401 celular o PIN incorrectos · 429 bloqueado |
+| `GET /api/sesion` · `DELETE /api/sesion?rol=` | HU-18 | Quién tiene sesión · salir |
 | `GET /api/domiciliarios/:id` | Inicio | 200 perfil + plan + recordatorio · 404 |
 | `PATCH /api/motos/:id` | HU-08 | 200 · 400 km menor al actual · 404 |
 | `GET /api/planes` | HU-02 | 200 |
 | `POST /api/suscripciones` | HU-02 | 201 · 200 ya activo · 400 · 404 |
-| `GET /api/visitas?domiciliarioId=` | HU-05/09 | 200 |
+| `GET /api/visitas` | HU-05/09 | 200 |
 | `POST /api/visitas` | HU-03 | 201 · 400 · 404 · 409 sin plan |
 | `PATCH /api/visitas/:id/aceptar` | HU-04 | 200 · 404 · 409 ya aceptada |
 | `PATCH /api/visitas/:id/cerrar` | HU-06 | 200 · 400 · 403 no es su visita · 409 |
@@ -131,7 +134,7 @@ Para empezar a aportar código, ver [docs/GUIA-APORTES.md](docs/GUIA-APORTES.md)
 ## Despliegue (entorno de demo)
 
 1. Crear una base de datos gratis en [Neon](https://neon.tech) y copiar su connection string.
-2. En [Vercel](https://vercel.com), importar el repo y agregar la variable `DATABASE_URL` en *Settings → Environment Variables*.
+2. En [Vercel](https://vercel.com), importar el repo y agregar las variables `DATABASE_URL` y `SESSION_SECRET` en *Settings → Environment Variables* (genera el secreto con `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`).
 3. Vercel ejecuta `npm run vercel-build`, que aplica las migraciones y construye la app en cada merge a `main`.
 4. Cargar datos de demo una vez: `DATABASE_URL=<url de Neon> npm run db:seed`.
 
@@ -147,7 +150,8 @@ Los secretos van solo en Vercel (y en `.env` local, que está en `.gitignore`). 
 
 ## Decisiones de diseño
 
-- **Sin login en el MVP:** el id del domiciliario se guarda en `localStorage` (`motopit:domiciliarioId`) y se puede volver a entrar con el celular. El mecánico elige su perfil de la lista del seed.
+- **Ingreso con celular y PIN (HU-18):** el PIN se guarda cifrado con `scrypt` y sal aleatoria. La sesión es un token firmado con HMAC en una cookie `httpOnly` (el JavaScript de la página no la puede leer) que dura 30 días. Hay una cookie por rol, así en la demo se puede tener abierto al domiciliario y al mecánico a la vez. Tras 5 PIN incorrectos la cuenta se bloquea 15 minutos, y el mensaje de error es el mismo si el celular no existe, para no revelar quién está registrado.
+- **Mecánicos de demo:** `3000000001`, `3000000002` y `3000000003`, todos con PIN `1234` (lo pone el seed). Es solo para el entorno de demostración.
 - **Recordatorio de aceite:** al registrarse, el km actual se toma como último cambio de aceite. Cerrar una visita de *Cambio de aceite* reinicia el contador.
 - **Concurrencia:** aceptar, cerrar y calificar actualizan con condición (`WHERE estado = ...`), así dos mecánicos no pueden aceptar la misma visita al mismo tiempo.
 - **Fechas:** se guardan a mediodía UTC y se muestran en hora de Colombia para que el día no cambie.

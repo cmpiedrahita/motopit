@@ -4,15 +4,19 @@ import { getDb, schema } from "@/db";
 import { errorInterno, esUuid, leerCuerpo, noEncontrado, responderErrores } from "@/lib/api";
 import { puedeCalificar, validarCalificacion } from "@/lib/calificaciones";
 import { logger } from "@/lib/logger";
+import { sinSesion, usuarioEnSesion } from "@/lib/sesion-servidor";
 
 export const dynamic = "force-dynamic";
 
-// POST /api/visitas/:id/calificacion { domiciliarioId, calificacion } → HU-13: califica al mecánico de 1 a 5.
-// 200 · 400 fuera de rango · 404 no existe o no es del domiciliario · 409 no completada o ya calificada.
+// POST /api/visitas/:id/calificacion { calificacion } → HU-13: califica al mecánico de 1 a 5.
+// 200 · 400 fuera de rango · 401 sin sesión · 404 no existe o no es del domiciliario · 409 no completada o ya calificada.
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  const enSesion = await usuarioEnSesion("domiciliario");
+  if (!enSesion) return sinSesion();
   if (!esUuid(id)) return noEncontrado("La visita no existe");
-  const validacion = validarCalificacion(await leerCuerpo(req));
+  // HU-18: el domiciliario sale de la sesión, nunca del cuerpo de la petición.
+  const validacion = validarCalificacion({ ...(await leerCuerpo(req)), domiciliarioId: enSesion });
   if (!validacion.ok) return responderErrores(validacion.errores, 400);
   const { domiciliarioId, calificacion } = validacion.datos;
 

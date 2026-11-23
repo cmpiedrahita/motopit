@@ -31,7 +31,7 @@ function Planes() {
     if (!domiciliarioId) return router.push("/registro");
     setEligiendo(plan.id);
     setError(undefined);
-    const r = await pedir("/api/suscripciones", { metodo: "POST", cuerpo: { domiciliarioId, planId: plan.id } });
+    const r = await pedir("/api/suscripciones", { metodo: "POST", cuerpo: { planId: plan.id } });
     setEligiendo(undefined);
     if (!r.ok) return setError(r.errores.general ?? r.errores.planId);
     setElegido(plan.nombre);

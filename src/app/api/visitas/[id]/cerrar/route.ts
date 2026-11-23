@@ -4,15 +4,18 @@ import { getDb, schema } from "@/db";
 import { errorInterno, esUuid, leerCuerpo, noEncontrado, responderErrores } from "@/lib/api";
 import { logger } from "@/lib/logger";
 import { motoTrasCierre } from "@/lib/mantenimiento";
+import { sinSesion, usuarioEnSesion } from "@/lib/sesion-servidor";
 import { cambiarEstado, validarCierre } from "@/lib/visitas";
 
 export const dynamic = "force-dynamic";
 
-// PATCH /api/visitas/:id/cerrar { mecanicoId, trabajoRealizado, km } → HU-06.
+// PATCH /api/visitas/:id/cerrar { trabajoRealizado, km } → HU-06.
 // La visita pasa a COMPLETADA y se actualiza el km de la moto (y el del último aceite si aplica).
-// 200 · 400 datos inválidos · 403 no es su visita · 404 no existe · 409 no está asignada.
+// 200 · 400 datos inválidos · 401 sin sesión · 403 no es su visita · 404 no existe · 409 no está asignada.
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  const mecanicoId = await usuarioEnSesion("mecanico");
+  if (!mecanicoId) return sinSesion();
   if (!esUuid(id)) return noEncontrado("La visita no existe");
   const cuerpo = await leerCuerpo(req);
 
@@ -26,7 +29,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     if (!fila) return noEncontrado("La visita no existe");
     const { visita, moto } = fila;
 
-    if (visita.mecanicoId !== cuerpo.mecanicoId) {
+    if (visita.mecanicoId !== mecanicoId) {
       return responderErrores({ general: "Solo el mecánico asignado puede cerrar esta visita" }, 403);
     }
     try {

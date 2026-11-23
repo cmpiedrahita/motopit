@@ -1,61 +1,47 @@
 "use client";
 // HU-04: el mecánico ve y acepta visitas pendientes.
 // HU-06: el mecánico cierra sus visitas registrando el trabajo y el km.
-// Sin login en el MVP: el mecánico se elige de la lista del seed y se recuerda en localStorage.
+// HU-18: el mecánico entra con su celular y su PIN; la API solo le deja actuar a su nombre.
 import { useCallback, useState, type FormEvent } from "react";
 import { Celebracion, type TipoCelebracion } from "@/components/Celebracion";
-import { useDatos, useSesion } from "@/components/hooks";
+import { Moto } from "@/components/escenas";
+import { FormularioIngreso } from "@/components/FormularioIngreso";
+import { useDatos } from "@/components/hooks";
 import { Icono } from "@/components/Icono";
 import { PerfilMecanico } from "@/components/PerfilMecanico";
+import { useSesion } from "@/components/SesionProvider";
 import { TarjetaVisita } from "@/components/TarjetaVisita";
 import { Aviso, Campo, Dato, ErrorGeneral, Esqueleto, Placa, Vacio } from "@/components/ui";
 import { pedir } from "@/lib/cliente";
 import { formatearKm } from "@/lib/formato";
-import { CLAVE_MECANICO } from "@/lib/sesion";
 import type { MecanicoPerfil, VisitaDetalle } from "@/lib/tipos";
 import type { Errores } from "@/lib/validacion";
 
 type VisitasMecanico = { pendientes: VisitaDetalle[]; asignadas: VisitaDetalle[] };
 
 export default function PaginaMecanico() {
-  const sesion = useSesion(CLAVE_MECANICO);
-  const mecanicos = useDatos<MecanicoPerfil[]>("/api/mecanicos");
-  const yo = mecanicos.datos?.find((m) => m.id === sesion.id);
+  const { mecanicoId, salir } = useSesion();
+  const mecanicos = useDatos<MecanicoPerfil[]>(mecanicoId ? "/api/mecanicos" : null);
+  const yo = mecanicos.datos?.find((m) => m.id === mecanicoId);
 
-  if (sesion.id === undefined || (mecanicos.cargando && !mecanicos.datos)) return <Esqueleto bloques={[60, 90, 90]} />;
-  if (!yo) return <ElegirMecanico mecanicos={mecanicos.datos ?? []} error={mecanicos.errores?.general} onElegir={sesion.guardar} />;
-  return <Tablero mecanico={yo} onSalir={sesion.borrar} />;
+  if (mecanicoId === undefined || (mecanicoId && !mecanicos.datos && !mecanicos.errores)) {
+    return <Esqueleto bloques={[60, 90, 90]} />;
+  }
+  if (!mecanicoId || !yo) return <IngresoMecanico error={mecanicos.errores?.general} />;
+  return <Tablero mecanico={yo} onSalir={() => salir("mecanico")} />;
 }
 
-function ElegirMecanico({
-  mecanicos,
-  error,
-  onElegir,
-}: {
-  mecanicos: MecanicoPerfil[];
-  error?: string;
-  onElegir: (id: string) => void;
-}) {
+function IngresoMecanico({ error }: { error?: string }) {
   return (
     <>
-      <p className="etiqueta-seccion">Mecánicos aliados</p>
-      <h1>¿Quién eres?</h1>
-      <p className="sub">Elige tu perfil para ver las visitas pendientes y las que tienes asignadas.</p>
-      <ErrorGeneral mensaje={error} />
-      <div className="pila">
-        {mecanicos.map((m) => (
-          <button key={m.id} className="boton-perfil" onClick={() => onElegir(m.id)} aria-label={`Entrar como ${m.nombre}`}>
-            <PerfilMecanico mecanico={m} />
-          </button>
-        ))}
-        {mecanicos.length === 0 && !error && (
-          <Aviso tipo="info" titulo="No hay mecánicos cargados">
-            <p>
-              Ejecuta <code>npm run db:seed</code> para cargar los mecánicos de demo.
-            </p>
-          </Aviso>
-        )}
+      <div style={{ display: "grid", placeItems: "center", margin: "8px 0 4px" }}>
+        <Moto variante="mecanico" ancho={110} />
       </div>
+      <p className="etiqueta-seccion">Mecánicos aliados</p>
+      <h1>Ingresa a tu panel</h1>
+      <p className="sub">Con tu celular y tu PIN ves las visitas pendientes y las que tienes asignadas.</p>
+      <ErrorGeneral mensaje={error} />
+      <FormularioIngreso rol="mecanico" />
     </>
   );
 }
@@ -71,7 +57,7 @@ function Tablero({ mecanico, onSalir }: { mecanico: MecanicoPerfil; onSalir: () 
   const asignadas = visitas.datos?.asignadas ?? [];
 
   async function aceptar(visita: VisitaDetalle) {
-    const r = await pedir(`/api/visitas/${visita.id}/aceptar`, { metodo: "PATCH", cuerpo: { mecanicoId: mecanico.id } });
+    const r = await pedir(`/api/visitas/${visita.id}/aceptar`, { metodo: "PATCH" });
     if (r.ok) {
       setCelebracion({
         tipo: "en-camino",
@@ -99,7 +85,7 @@ function Tablero({ mecanico, onSalir }: { mecanico: MecanicoPerfil; onSalir: () 
           Panel del mecánico
         </p>
         <button className="enlace fila-inicio" style={{ gap: 4, fontSize: "0.88rem" }} onClick={onSalir}>
-          <Icono nombre="salir" tamano={16} /> Cambiar
+          <Icono nombre="salir" tamano={16} /> Salir
         </button>
       </div>
       <div className="sin-margen" style={{ marginTop: 10 }}>
@@ -151,7 +137,7 @@ function Tablero({ mecanico, onSalir }: { mecanico: MecanicoPerfil; onSalir: () 
           {asignadas.map((v) => (
             <TarjetaVisita key={v.id} visita={v}>
               <DatosMoto visita={v} conTelefono />
-              <CerrarVisita visita={v} mecanicoId={mecanico.id} onCerrada={() => alCerrar(v)} />
+              <CerrarVisita visita={v} onCerrada={() => alCerrar(v)} />
             </TarjetaVisita>
           ))}
         </div>
@@ -202,7 +188,7 @@ function BotonAsync({
 }
 
 // HU-06: formulario para cerrar la visita.
-function CerrarVisita({ visita, mecanicoId, onCerrada }: { visita: VisitaDetalle; mecanicoId: string; onCerrada: () => void }) {
+function CerrarVisita({ visita, onCerrada }: { visita: VisitaDetalle; onCerrada: () => void }) {
   const [abierto, setAbierto] = useState(false);
   const [form, setForm] = useState({ trabajoRealizado: "", km: "" });
   const [errores, setErrores] = useState<Errores>({});
@@ -211,7 +197,7 @@ function CerrarVisita({ visita, mecanicoId, onCerrada }: { visita: VisitaDetalle
   async function enviar(e: FormEvent) {
     e.preventDefault();
     setEnviando(true);
-    const r = await pedir(`/api/visitas/${visita.id}/cerrar`, { metodo: "PATCH", cuerpo: { ...form, mecanicoId } });
+    const r = await pedir(`/api/visitas/${visita.id}/cerrar`, { metodo: "PATCH", cuerpo: form });
     setEnviando(false);
     if (!r.ok) return setErrores(r.errores);
     onCerrada();
