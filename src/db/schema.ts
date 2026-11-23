@@ -10,6 +10,10 @@ export const domiciliarios = pgTable("domiciliarios", {
   id: uuid("id").primaryKey().defaultRandom(),
   nombre: text("nombre").notNull(),
   celular: text("celular").notNull().unique(),
+  // HU-18: PIN cifrado y bloqueo por intentos fallidos.
+  pinHash: text("pin_hash"),
+  intentosFallidos: integer("intentos_fallidos").notNull().default(0),
+  bloqueadoHasta: timestamp("bloqueado_hasta"),
   creadoEn: timestamp("creado_en").notNull().defaultNow(),
 });
 
@@ -52,6 +56,10 @@ export const mecanicos = pgTable("mecanicos", {
   celular: text("celular").notNull().unique(),
   aniosExperiencia: integer("anios_experiencia").notNull(),
   verificado: boolean("verificado").notNull().default(false),
+  // HU-18: PIN cifrado y bloqueo por intentos fallidos.
+  pinHash: text("pin_hash"),
+  intentosFallidos: integer("intentos_fallidos").notNull().default(0),
+  bloqueadoHasta: timestamp("bloqueado_hasta"),
 });
 
 export const visitas = pgTable("visitas", {
