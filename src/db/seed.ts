@@ -20,15 +20,26 @@ const planes = [
   },
 ];
 
+// Mecánicos ficticios para la demo. Uno sin verificar, para mostrar la diferencia en el perfil (HU-13).
 const mecanicos = [
-  { nombre: "Mecánico Demo 1", celular: "3000000001", aniosExperiencia: 8, verificado: true },
-  { nombre: "Mecánico Demo 2", celular: "3000000002", aniosExperiencia: 3, verificado: false },
+  { nombre: "Jhon Fredy Ríos", celular: "3000000001", aniosExperiencia: 8, verificado: true },
+  { nombre: "Luisa Fernanda Mora", celular: "3000000002", aniosExperiencia: 5, verificado: true },
+  { nombre: "Camilo Andrés Peña", celular: "3000000003", aniosExperiencia: 2, verificado: false },
 ];
 
 async function main() {
   const db = getDb();
   await db.insert(schema.planes).values(planes).onConflictDoNothing({ target: schema.planes.codigo });
-  await db.insert(schema.mecanicos).values(mecanicos).onConflictDoNothing({ target: schema.mecanicos.celular });
+  // Si el mecánico ya existe (mismo celular) se actualizan sus datos: el seed se puede correr varias veces.
+  for (const m of mecanicos) {
+    await db
+      .insert(schema.mecanicos)
+      .values(m)
+      .onConflictDoUpdate({
+        target: schema.mecanicos.celular,
+        set: { nombre: m.nombre, aniosExperiencia: m.aniosExperiencia, verificado: m.verificado },
+      });
+  }
   console.log(`Seed listo: ${planes.length} planes, ${mecanicos.length} mecánicos`);
   process.exit(0);
 }
