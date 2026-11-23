@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useState, type FormEvent } from "react";
+import { CarreteraPasos, EscenaLlegada } from "@/components/escenas";
 import { usePerfil } from "@/components/hooks";
 import { Icono, type NombreIcono } from "@/components/Icono";
 import { Aviso, Campo, Dato, ErrorGeneral, Esqueleto } from "@/components/ui";
@@ -74,11 +75,9 @@ function Agendar() {
   if (agendada) {
     return (
       <div className="exito-grande">
-        <span className="vacio-icono">
-          <Icono nombre="check" tamano={36} grosor={2.5} />
-        </span>
+        <EscenaLlegada />
         <h1>¡Visita agendada!</h1>
-        <p className="sub">Un mecánico la va a aceptar pronto. Te mostramos su perfil apenas lo haga.</p>
+        <p className="sub">El mecánico irá hasta donde está tu moto. Te mostramos su perfil apenas acepte la visita.</p>
         <div className="tarjeta" style={{ textAlign: "left" }}>
           <h3>{SERVICIOS[form.servicio as Servicio]}</h3>
           <Dato icono="calendario">
@@ -99,12 +98,20 @@ function Agendar() {
   }
 
   const sinPlan = !perfil.plan;
+  // Paradas de la carretera: la moto del mecánico avanza a medida que se completan.
+  const pasos = [
+    { nombre: "Dónde", listo: form.direccion.trim().length >= 6 },
+    { nombre: "Cuándo", listo: !!form.fecha },
+    { nombre: "Franja", listo: !!form.franja },
+    { nombre: "Servicio", listo: !!form.servicio },
+  ];
 
   return (
     <>
       <p className="etiqueta-seccion">Nueva visita</p>
       <h1>Agenda tu visita</h1>
       <p className="sub">Dinos dónde está la moto y cuándo te sirve. El mecánico va hasta allá.</p>
+      {!sinPlan && <CarreteraPasos pasos={pasos} completados={pasos.filter((p) => p.listo).length} />}
 
       {(sinPlan || errores.plan) && (
         <div style={{ marginBottom: 20 }}>

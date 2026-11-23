@@ -2,7 +2,8 @@
 // HU-04: el mecánico ve y acepta visitas pendientes.
 // HU-06: el mecánico cierra sus visitas registrando el trabajo y el km.
 // Sin login en el MVP: el mecánico se elige de la lista del seed y se recuerda en localStorage.
-import { useState, type FormEvent } from "react";
+import { useCallback, useState, type FormEvent } from "react";
+import { Celebracion, type TipoCelebracion } from "@/components/Celebracion";
 import { useDatos, useSesion } from "@/components/hooks";
 import { Icono } from "@/components/Icono";
 import { PerfilMecanico } from "@/components/PerfilMecanico";
@@ -63,27 +64,36 @@ function Tablero({ mecanico, onSalir }: { mecanico: MecanicoPerfil; onSalir: () 
   const visitas = useDatos<VisitasMecanico>(`/api/mecanicos/${mecanico.id}/visitas`);
   const [pestana, setPestana] = useState<"pendientes" | "asignadas">("pendientes");
   const [mensaje, setMensaje] = useState<{ tipo: "exito" | "peligro"; texto: string }>();
+  const [celebracion, setCelebracion] = useState<{ tipo: TipoCelebracion; titulo: string; detalle: string }>();
+  const cerrarCelebracion = useCallback(() => setCelebracion(undefined), []);
 
   const pendientes = visitas.datos?.pendientes ?? [];
   const asignadas = visitas.datos?.asignadas ?? [];
 
   async function aceptar(visita: VisitaDetalle) {
     const r = await pedir(`/api/visitas/${visita.id}/aceptar`, { metodo: "PATCH", cuerpo: { mecanicoId: mecanico.id } });
-    setMensaje(
-      r.ok
-        ? { tipo: "exito", texto: `Aceptaste la visita de ${visita.domiciliario.nombre}. Quedó en "Mis visitas".` }
-        : { tipo: "peligro", texto: r.errores.general ?? "No se pudo aceptar la visita" },
-    );
+    if (r.ok) {
+      setCelebracion({
+        tipo: "en-camino",
+        titulo: "¡Vas en camino!",
+        detalle: `${visita.domiciliario.nombre} te espera con la moto ${visita.moto.placa}.`,
+      });
+      setMensaje({ tipo: "exito", texto: `Aceptaste la visita de ${visita.domiciliario.nombre}. Quedó en "Mis visitas".` });
+    } else {
+      setMensaje({ tipo: "peligro", texto: r.errores.general ?? "No se pudo aceptar la visita" });
+    }
     visitas.recargar();
   }
 
   function alCerrar(visita: VisitaDetalle) {
+    setCelebracion({ tipo: "moto-lista", titulo: "¡Moto lista!", detalle: `El trabajo quedó en el historial de ${visita.moto.placa}.` });
     setMensaje({ tipo: "exito", texto: `Cerraste la visita de ${visita.moto.placa}. Quedó en su historial.` });
     visitas.recargar();
   }
 
   return (
     <>
+      {celebracion && <Celebracion {...celebracion} onCerrar={cerrarCelebracion} />}
       <div className="fila">
         <p className="etiqueta-seccion" style={{ margin: 0 }}>
           Panel del mecánico

@@ -3,6 +3,7 @@
 // HU-13: perfil verificado del mecánico y calificación de 1 a 5 al completar.
 import Link from "next/link";
 import { useState } from "react";
+import { EscenaEnCamino } from "@/components/escenas";
 import { useDatos, usePerfil } from "@/components/hooks";
 import { Estrella, Icono } from "@/components/Icono";
 import { PerfilMecanico } from "@/components/PerfilMecanico";
@@ -59,10 +60,17 @@ export default function MisVisitas() {
           {activas.map((v) => (
             <TarjetaVisita key={v.id} visita={v}>
               {v.mecanico ? (
-                <PerfilMecanico mecanico={v.mecanico} titulo="Tu mecánico" />
+                <>
+                  <EscenaEnCamino />
+                  <p className="en-camino-texto">
+                    <Icono nombre="check" tamano={16} grosor={2.5} /> {v.mecanico.nombre.split(" ")[0]} aceptó tu visita
+                  </p>
+                  <PerfilMecanico mecanico={v.mecanico} titulo="Tu mecánico" />
+                </>
               ) : (
-                <p className="meta" style={{ margin: "12px 0 0" }}>
-                  Esperando que un mecánico acepte la visita…
+                <p className="buscando">
+                  <span className="radar" aria-hidden="true" />
+                  Buscando un mecánico cerca de tu moto…
                 </p>
               )}
             </TarjetaVisita>

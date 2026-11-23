@@ -256,6 +256,7 @@ Estas son las historias de [GUIA-APORTES.md](GUIA-APORTES.md). Primero hay que c
 | HU-16 | Escribirle al mecánico asignado por WhatsApp | EP-03 | 2 | Media | Miguel | Sprint Backlog |
 | HU-17 | No permitir dos visitas activas para la misma moto el mismo día | EP-02 | 3 | Alta | Yojhan | Sprint Backlog |
 | T-08 | Pruebas de las ayudas de la API y umbral de cobertura en el CI | EP-05 | 2 | Media | Yojhan | Sprint Backlog |
+| T-09 | Animaciones: escenas de calle, llegada del mecánico, carretera de pasos y celebraciones | EP-05 | 3 | Media | Carlos | Hecho |
 
 Criterios de aceptación de cada una: ver [GUIA-APORTES.md](GUIA-APORTES.md).
 
@@ -277,7 +278,7 @@ Criterios de aceptación de cada una: ver [GUIA-APORTES.md](GUIA-APORTES.md).
 | Sprint 0 | 13 pts | 13 pts | 13 |
 | Sprint 1 | 21 pts | 21 pts | 21 |
 | Sprint 2 | 17 pts | 17 pts | 17 |
-| Sprint 3 | 10 pts | — | — |
+| Sprint 3 | 13 pts | — | — |
 
 **Burndown:** en Jira sale solo (*Reports → Burndown chart*). En Trello o Notion, hagan una tabla con los puntos que faltan cada día del sprint y una gráfica de línea en Excel o Google Sheets; pongan la imagen en la tarjeta de la Sprint Review.
 
