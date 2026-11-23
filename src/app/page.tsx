@@ -1,20 +1,15 @@
-import Link from "next/link";
+"use client";
+// Pantalla de inicio: bienvenida si no hay sesión, panel del domiciliario si la hay.
+import { usePerfil } from "@/components/hooks";
+import { Bienvenida } from "@/components/inicio/Bienvenida";
+import { Panel } from "@/components/inicio/Panel";
+import { Esqueleto, ErrorGeneral } from "@/components/ui";
 
-// Pantalla de inicio. Cada historia agrega su enlace aquí cuando su pantalla exista.
 export default function Inicio() {
-  return (
-    <section>
-      <h1>Tu moto al día sin dejar de trabajar</h1>
-      <p className="sub">El mecánico va a donde está tu moto. Plan mensual fijo, sin filas en el taller.</p>
+  const { perfil, cargando, errores, recargar, salir } = usePerfil();
 
-      <div className="acciones">
-        <Link className="boton" href="/registro">
-          Registrar mi moto
-        </Link>
-        <Link className="boton secundario" href="/mecanico">
-          Soy mecánico
-        </Link>
-      </div>
-    </section>
-  );
+  if (cargando) return <Esqueleto bloques={[60, 170, 110, 90]} />;
+  if (perfil) return <Panel perfil={perfil} onCambio={recargar} onSalir={salir} />;
+  if (errores?.general && errores.general !== "El domiciliario no existe") return <ErrorGeneral mensaje={errores.general} />;
+  return <Bienvenida />;
 }
