@@ -41,8 +41,6 @@ Reglas existentes que hay que reutilizar, no duplicar:
 - Fechas, pesos, km y etiquetas: `src/lib/formato.ts` (`hoyEnBogota()`, `fechaADate()`, `formatearFecha()`).
 - En pantallas: `pedir()` de `src/lib/cliente.ts`, hooks `usePerfil()` / `useDatos()` de `src/components/hooks.ts`, `useSesion()` de `src/components/SesionProvider.tsx` y componentes de `src/components/ui.tsx`.
 
-Las historias del Sprint 3 (HU-15, HU-16, HU-17, T-08) están descritas paso a paso en `docs/GUIA-APORTES.md`.
-
 Sesión (HU-18): domiciliarios y mecánicos entran con celular y PIN. La sesión va en cookies `httpOnly` firmadas, una por rol. En las rutas de la API el usuario se obtiene SIEMPRE con `usuarioEnSesion("domiciliario" | "mecanico")` de `src/lib/sesion-servidor.ts`, nunca del cuerpo ni de la URL; sin sesión se responde `sinSesion()` (401) y si el recurso es de otro, `sinPermiso()` (403). En las pantallas, `useSesion()` de `src/components/SesionProvider.tsx` da `domiciliarioId` y `mecanicoId`.
 
 ## Flujo de trabajo (obligatorio)
