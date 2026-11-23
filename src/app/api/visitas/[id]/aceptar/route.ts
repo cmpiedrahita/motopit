@@ -1,21 +1,22 @@
 import { NextResponse } from "next/server";
 import { and, eq } from "drizzle-orm";
 import { getDb, schema } from "@/db";
-import { errorInterno, esUuid, leerCuerpo, noEncontrado, responderErrores } from "@/lib/api";
+import { errorInterno, esUuid, noEncontrado, responderErrores } from "@/lib/api";
 import { logger } from "@/lib/logger";
+import { sinSesion, usuarioEnSesion } from "@/lib/sesion-servidor";
 import { aceptarVisita } from "@/lib/visitas";
 
 export const dynamic = "force-dynamic";
 
 const YA_ACEPTADA = { general: "Esta visita ya fue aceptada por otro mecánico" };
 
-// PATCH /api/visitas/:id/aceptar { mecanicoId } → HU-04: la visita pasa a ASIGNADA con ese mecánico.
-// 200 · 400 sin mecánico · 404 no existe · 409 ya no está pendiente.
-export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
+// PATCH /api/visitas/:id/aceptar → HU-04: la visita pasa a ASIGNADA con el mecánico en sesión (HU-18).
+// 200 · 401 sin sesión · 404 no existe · 409 ya no está pendiente.
+export async function PATCH(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  const mecanicoId = await usuarioEnSesion("mecanico");
+  if (!mecanicoId) return sinSesion();
   if (!esUuid(id)) return noEncontrado("La visita no existe");
-  const { mecanicoId } = await leerCuerpo(req);
-  if (!esUuid(mecanicoId)) return responderErrores({ mecanicoId: "Elige qué mecánico eres" }, 400);
 
   try {
     const db = getDb();

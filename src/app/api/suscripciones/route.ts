@@ -4,14 +4,18 @@ import { getDb, schema } from "@/db";
 import { errorInterno, leerCuerpo, noEncontrado, responderErrores } from "@/lib/api";
 import { logger } from "@/lib/logger";
 import { planearCambioDePlan, validarEleccionPlan } from "@/lib/planes";
+import { sinSesion, usuarioEnSesion } from "@/lib/sesion-servidor";
 
 export const dynamic = "force-dynamic";
 
-// POST /api/suscripciones { domiciliarioId, planId } → HU-02: deja activo el plan elegido.
+// POST /api/suscripciones { planId } → HU-02: deja activo el plan elegido para el domiciliario en sesión.
 // Solo un plan activo a la vez: elegir otro desactiva el anterior.
-// 201 nueva suscripción · 200 ese plan ya estaba activo · 400 inválido · 404 no existe.
+// 201 nueva suscripción · 200 ese plan ya estaba activo · 400 inválido · 401 sin sesión · 404 no existe.
 export async function POST(req: Request) {
-  const validacion = validarEleccionPlan(await leerCuerpo(req));
+  const enSesion = await usuarioEnSesion("domiciliario");
+  if (!enSesion) return sinSesion();
+  // HU-18: el domiciliario sale de la sesión, nunca del cuerpo de la petición.
+  const validacion = validarEleccionPlan({ ...(await leerCuerpo(req)), domiciliarioId: enSesion });
   if (!validacion.ok) return responderErrores(validacion.errores, 400);
   const { domiciliarioId, planId } = validacion.datos;
 
