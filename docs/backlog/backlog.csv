@@ -1,0 +1,62 @@
+Tipo,ID,Titulo,Padre,Epica,Sprint,Puntos,Prioridad,Responsable,Estado,Issue,Descripcion
+Epica,EP-01,Registro y suscripción,,EP-01,,,,,,,"Que el domiciliario entre al servicio y sepa cuánto paga."
+Epica,EP-02,Visitas a domicilio,,EP-02,,,,,,,"Que el mecánico llegue a donde está la moto sin perder el día de trabajo."
+Epica,EP-03,Confianza en el mecánico,,EP-03,,,,,,,"Que el domiciliario sepa quién atiende su moto (entrevistas E1 y E2)."
+Epica,EP-04,Mantenimiento preventivo,,EP-04,,,,,,,"Que la moto no falle por olvidar el aceite (reemplaza la libreta de E2)."
+Epica,EP-05,Plataforma y DevOps,,EP-05,,,,,,,"Repo, CI, despliegue continuo, monitoreo y calidad."
+Epica,EP-06,Crecimiento (futuro),,EP-06,,,,,,,"Ideas validadas pero fuera del MVP."
+Tarea tecnica,T-01,"Crear repo, esqueleto Next.js + TypeScript y estructura de carpetas",EP-05,EP-05,Sprint 0,2,Alta,Carlos,Hecho,,
+Tarea tecnica,T-02,Modelo de datos con Drizzle y primera migración,EP-05,EP-05,Sprint 0,3,Alta,Carlos,Hecho,,"Domiciliarios, motos, planes, suscripciones, mecánicos y visitas."
+Tarea tecnica,T-03,"CI en GitHub Actions: lint, tipos, pruebas y build",EP-05,EP-05,Sprint 0,2,Alta,Carlos,Hecho,,
+Tarea tecnica,T-04,Health check /api/health y logger en JSON,EP-05,EP-05,Sprint 0,1,Media,Carlos,Hecho,,
+Tarea tecnica,T-05,"Plantillas de issue y PR, protección de main",EP-05,EP-05,Sprint 0,1,Media,Carlos,Hecho,,
+Tarea tecnica,T-06,Despliegue en Vercel + base de datos en Neon,EP-05,EP-05,Sprint 0,2,Alta,Carlos,Hecho,,
+Tarea tecnica,T-07,Product Backlog inicial a partir de las entrevistas,EP-05,EP-05,Sprint 0,2,Alta,Miguel,Hecho,,
+Historia,HU-01,Registro del domiciliario con su moto,EP-01,EP-01,Sprint 1,5,Alta,Carlos,Hecho,#1,"Como domiciliario quiero registrarme con mi moto para poder pedir mantenimiento. CA: (1) con nombre, celular, placa, marca y km queda registrado; (2) placa o celular repetidos muestran error; (3) km negativo o vacío muestra error; (4) placa con formato colombiano ABC12D."
+Subtarea,HU-01.1,Reglas validarRegistro y erroresDuplicados + pruebas,HU-01,EP-01,Sprint 1,,,Carlos,Hecho,#1,src/lib/registro.ts
+Subtarea,HU-01.2,API POST /api/domiciliarios,HU-01,EP-01,Sprint 1,,,Carlos,Hecho,#1,201 / 400 / 409
+Subtarea,HU-01.3,Pantalla /registro con vista previa de placa,HU-01,EP-01,Sprint 1,,,Carlos,Hecho,#1,
+Subtarea,HU-01.4,Ingreso con celular (/ingresar),HU-01,EP-01,Sprint 1,,,Carlos,Hecho,#1,
+Historia,HU-02,Elegir plan mensual,EP-01,EP-01,Sprint 1,3,Alta,Miguel,Hecho,#2,"Como domiciliario quiero elegir un plan mensual para saber cuánto pago y qué incluye. CA: (1) 2 planes con precio, qué incluye y qué NO incluye; (2) al elegir queda activo; (3) solo un plan activo a la vez."
+Subtarea,HU-02.1,Regla planearCambioDePlan + pruebas,HU-02,EP-01,Sprint 1,,,Miguel,Hecho,#2,src/lib/planes.ts
+Subtarea,HU-02.2,API GET /api/planes y POST /api/suscripciones,HU-02,EP-01,Sprint 1,,,Miguel,Hecho,#2,
+Subtarea,HU-02.3,Pantalla /planes,HU-02,EP-01,Sprint 1,,,Miguel,Hecho,#2,
+Subtarea,HU-02.4,Seed con Plan Básico y Plan Full,HU-02,EP-01,Sprint 1,,,Miguel,Hecho,#2,
+Historia,HU-03,Agendar visita donde está la moto,EP-02,EP-02,Sprint 1,5,Alta,Yojhan,Hecho,#3,"Como domiciliario quiero agendar una visita donde está mi moto para no perder el día. CA: (1) con plan activo se crea en PENDIENTE; (2) sin plan no deja y explica por qué; (3) no permite fechas pasadas."
+Subtarea,HU-03.1,Regla validarAgenda + pruebas,HU-03,EP-02,Sprint 1,,,Yojhan,Hecho,#3,src/lib/agenda.ts
+Subtarea,HU-03.2,API POST /api/visitas,HU-03,EP-02,Sprint 1,,,Yojhan,Hecho,#3,201 / 400 / 409 sin plan
+Subtarea,HU-03.3,Pantalla /agendar,HU-03,EP-02,Sprint 1,,,Yojhan,Hecho,#3,
+Historia,HU-04,Mecánico ve y acepta visitas pendientes,EP-02,EP-02,Sprint 1,5,Alta,Carlos,Hecho,#4,"Como mecánico quiero ver y aceptar visitas pendientes para organizar mi día. CA: (1) ve las PENDIENTE; (2) al aceptar pasa a ASIGNADA con su nombre; (3) una asignada no aparece para otro ni se acepta dos veces."
+Subtarea,HU-04.1,Reglas aceptarVisita y clasificarParaMecanico + pruebas,HU-04,EP-02,Sprint 1,,,Carlos,Hecho,#4,src/lib/visitas.ts
+Subtarea,HU-04.2,API visitas del mecánico y aceptar,HU-04,EP-02,Sprint 1,,,Carlos,Hecho,#4,Update condicional contra carreras
+Subtarea,HU-04.3,Pantalla /mecanico,HU-04,EP-02,Sprint 1,,,Carlos,Hecho,#4,
+Historia,HU-05,Ver el estado de mis visitas,EP-02,EP-02,Sprint 1,3,Media,Miguel,Hecho,#5,"Como domiciliario quiero ver el estado de mi visita para saber cuándo llega el mecánico. CA: (1) ve sus visitas con estado; (2) si está asignada ve el nombre del mecánico."
+Subtarea,HU-05.1,Consulta listarVisitas,HU-05,EP-02,Sprint 1,,,Miguel,Hecho,#5,src/db/consultas.ts
+Subtarea,HU-05.2,API GET /api/visitas,HU-05,EP-02,Sprint 1,,,Miguel,Hecho,#5,
+Subtarea,HU-05.3,Pantalla /visitas y tarjeta Próxima visita,HU-05,EP-02,Sprint 1,,,Miguel,Hecho,#5,
+Historia,HU-06,Cerrar visita con trabajo y km,EP-02,EP-02,Sprint 2,5,Alta,Carlos,Hecho,#6,"Como mecánico quiero cerrar una visita registrando el trabajo y el km para dejar historial. CA: (1) exige trabajo y km; (2) km no menor al actual; (3) pasa a COMPLETADA y actualiza el km de la moto."
+Subtarea,HU-06.1,Reglas validarCierre y motoTrasCierre + pruebas,HU-06,EP-02,Sprint 2,,,Carlos,Hecho,#6,
+Subtarea,HU-06.2,API PATCH /api/visitas/:id/cerrar,HU-06,EP-02,Sprint 2,,,Carlos,Hecho,#6,
+Subtarea,HU-06.3,Formulario Cerrar visita,HU-06,EP-02,Sprint 2,,,Carlos,Hecho,#6,
+Historia,HU-13,Perfil verificado del mecánico y calificación,EP-03,EP-03,Sprint 2,5,Alta,Miguel,Hecho,#7,"Como domiciliario quiero ver el perfil verificado del mecánico para confiar en quien atiende mi moto. CA: (1) con la visita ASIGNADA se ven nombre, experiencia, verificado y calificación; (2) al completar califica de 1 a 5."
+Subtarea,HU-13.1,Reglas de calificación + pruebas,HU-13,EP-03,Sprint 2,,,Miguel,Hecho,#7,src/lib/calificaciones.ts
+Subtarea,HU-13.2,API calificación y GET /api/mecanicos,HU-13,EP-03,Sprint 2,,,Miguel,Hecho,#7,
+Subtarea,HU-13.3,Componente PerfilMecanico y estrellas,HU-13,EP-03,Sprint 2,,,Miguel,Hecho,#7,
+Historia,HU-07,Recordatorio de cambio de aceite por km,EP-04,EP-04,Sprint 2,3,Alta,Yojhan,Hecho,#8,"Como domiciliario quiero un recordatorio cuando me toca cambio de aceite para no olvidarlo. CA: (1) aviso si faltan 300 km o menos (cada 2.000 km); (2) el aviso tiene botón para agendar."
+Subtarea,HU-07.1,Regla recordatorioAceite + pruebas,HU-07,EP-04,Sprint 2,,,Yojhan,Hecho,#8,src/lib/mantenimiento.ts
+Subtarea,HU-07.2,Perfil con recordatorio calculado,HU-07,EP-04,Sprint 2,,,Yojhan,Hecho,#8,
+Subtarea,HU-07.3,Aviso y barra de progreso en el inicio,HU-07,EP-04,Sprint 2,,,Yojhan,Hecho,#8,
+Historia,HU-08,Actualizar kilometraje,EP-04,EP-04,Sprint 2,2,Media,Yojhan,Hecho,#9,"Como domiciliario quiero actualizar mi kilometraje rápido para que los recordatorios sean correctos. CA: (1) se actualiza en un paso desde el inicio; (2) no acepta valores menores al actual."
+Subtarea,HU-08.1,Regla validarNuevoKm + pruebas,HU-08,EP-04,Sprint 2,,,Yojhan,Hecho,#9,
+Subtarea,HU-08.2,API PATCH /api/motos/:id y botón Actualizar,HU-08,EP-04,Sprint 2,,,Yojhan,Hecho,#9,
+Historia,HU-09,Historial de mantenimientos,EP-04,EP-04,Sprint 2,2,Media,Carlos,Hecho,#10,"Como domiciliario quiero ver el historial de mantenimientos de mi moto. CA: lista de completadas con fecha, trabajo y km, de la más reciente a la más antigua."
+Subtarea,HU-09.1,Regla historialDeMantenimiento + prueba,HU-09,EP-04,Sprint 2,,,Carlos,Hecho,#10,
+Subtarea,HU-09.2,Pantalla /historial,HU-09,EP-04,Sprint 2,,,Carlos,Hecho,#10,
+Historia,HU-15,Cancelar una visita que todavía no se ha hecho,EP-02,EP-02,Sprint 3,3,Alta,Miguel,Sprint Backlog,,"Ver docs/GUIA-APORTES.md"
+Historia,HU-16,Escribirle al mecánico asignado por WhatsApp,EP-03,EP-03,Sprint 3,2,Media,Miguel,Sprint Backlog,,"Ver docs/GUIA-APORTES.md"
+Historia,HU-17,No permitir dos visitas activas para la misma moto el mismo día,EP-02,EP-02,Sprint 3,3,Alta,Yojhan,Sprint Backlog,,"Ver docs/GUIA-APORTES.md"
+Tarea tecnica,T-08,Pruebas de las ayudas de la API y umbral de cobertura en el CI,EP-05,EP-05,Sprint 3,2,Media,Yojhan,Sprint Backlog,,"Ver docs/GUIA-APORTES.md"
+Historia,HU-14,Visita suelta sin suscripción,EP-06,EP-06,,5,Media,,Product Backlog,#11,"Por definir con las preguntas 8 y 9 de la validación (E1 prefiere pagar por uso)."
+Historia,HU-10,Inscribir flota de empresa de mensajería,EP-06,EP-06,,8,Baja,,Product Backlog,#12,Por definir.
+Historia,HU-11,Pago del plan en línea,EP-06,EP-06,,8,Baja,,Product Backlog,#13,Por definir.
+Historia,HU-12,Ver al mecánico en un mapa,EP-06,EP-06,,5,Baja,,Product Backlog,#14,Por definir.
