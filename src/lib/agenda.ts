@@ -1,9 +1,18 @@
 // HU-03: agendar una visita donde está la moto.
 import { z } from "zod";
-import { FRANJAS, SERVICIOS, type Franja, type Servicio } from "./formato";
+import { FRANJAS, hoyEnBogota, SERVICIOS, type Franja, type Servicio } from "./formato";
 import { texto, validar, type Resultado } from "./validacion";
 
 export const MENSAJE_SIN_PLAN = "Necesitas un plan activo para agendar visitas. Elige un plan y vuelve a intentarlo.";
+export const MENSAJE_CHOQUE = "Ya tienes una visita agendada para ese día";
+
+/** Determina si ya hay una visita activa de la moto en la fecha indicada en Colombia. */
+export function hayChoqueDeFecha(visitas: { estado: string; fecha: Date | string }[], fecha: string): boolean {
+  return visitas.some(
+    (visita) => (visita.estado === "PENDIENTE" || visita.estado === "ASIGNADA")
+      && hoyEnBogota(new Date(visita.fecha)) === fecha,
+  );
+}
 
 const franjas = Object.keys(FRANJAS) as [Franja, ...Franja[]];
 const servicios = Object.keys(SERVICIOS) as [Servicio, ...Servicio[]];
