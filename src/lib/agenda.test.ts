@@ -1,5 +1,26 @@
 import { describe, expect, it } from "vitest";
-import { MENSAJE_SIN_PLAN, validarAgenda } from "./agenda";
+import { hayChoqueDeFecha, MENSAJE_SIN_PLAN, validarAgenda } from "./agenda";
+
+describe("HU-17: visitas activas en la misma fecha", () => {
+  const fecha = "2026-11-25T12:00:00Z";
+
+  it.each(["PENDIENTE", "ASIGNADA"])("detecta una visita %s el mismo día", (estado) => {
+    expect(hayChoqueDeFecha([{ estado, fecha }], "2026-11-25")).toBe(true);
+  });
+
+  it.each(["CANCELADA", "COMPLETADA"])("permite otra visita si la anterior está %s", (estado) => {
+    expect(hayChoqueDeFecha([{ estado, fecha }], "2026-11-25")).toBe(false);
+  });
+
+  it("permite agendar en otro día", () => {
+    expect(hayChoqueDeFecha([{ estado: "PENDIENTE", fecha }], "2026-11-26")).toBe(false);
+  });
+
+  it("compara el día en Colombia aunque en UTC ya sea el siguiente", () => {
+    const fecha = new Date("2026-11-26T03:00:00Z");
+    expect(hayChoqueDeFecha([{ estado: "ASIGNADA", fecha }], "2026-11-25")).toBe(true);
+  });
+});
 
 const HOY = "2026-11-23";
 const solicitud = {

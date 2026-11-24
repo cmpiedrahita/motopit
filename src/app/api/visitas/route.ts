@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { and, eq } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { listarVisitas } from "@/db/consultas";
-import { validarAgenda } from "@/lib/agenda";
+import { hayChoqueDeFecha, MENSAJE_CHOQUE, validarAgenda } from "@/lib/agenda";
 import { errorInterno, leerCuerpo, noEncontrado, responderErrores } from "@/lib/api";
 import { fechaADate, hoyEnBogota } from "@/lib/formato";
 import { logger } from "@/lib/logger";
@@ -22,7 +22,7 @@ export async function GET() {
 }
 
 // POST /api/visitas → HU-03: agenda una visita donde está la moto. Queda PENDIENTE.
-// 201 { id, estado } · 400 datos inválidos · 401 sin sesión · 404 domiciliario sin moto · 409 sin plan activo.
+// 201 creada · 400 datos inválidos · 401 sin sesión · 404 sin moto · 409 sin plan o fecha ocupada.
 export async function POST(req: Request) {
   const domiciliarioId = await usuarioEnSesion("domiciliario");
   if (!domiciliarioId) return sinSesion();
@@ -43,10 +43,22 @@ export async function POST(req: Request) {
     if (!validacion.ok) return responderErrores(validacion.errores, validacion.errores.plan ? 409 : 400);
     const { direccion, fecha, franja, servicio } = validacion.datos;
 
-    const [visita] = await db
-      .insert(schema.visitas)
-      .values({ motoId: moto.id, direccion, fecha: fechaADate(fecha), franja, servicio, estado: "PENDIENTE" })
-      .returning({ id: schema.visitas.id, estado: schema.visitas.estado });
+    const visita = await db.transaction(async (tx) => {
+      // El bloqueo de la moto serializa las solicitudes simultáneas para esa moto.
+      await tx.select({ id: schema.motos.id }).from(schema.motos).where(eq(schema.motos.id, moto.id)).for("update");
+      const visitasDeLaMoto = await tx
+        .select({ estado: schema.visitas.estado, fecha: schema.visitas.fecha })
+        .from(schema.visitas)
+        .where(eq(schema.visitas.motoId, moto.id));
+      if (hayChoqueDeFecha(visitasDeLaMoto, fecha)) return null;
+
+      const [creada] = await tx
+        .insert(schema.visitas)
+        .values({ motoId: moto.id, direccion, fecha: fechaADate(fecha), franja, servicio, estado: "PENDIENTE" })
+        .returning({ id: schema.visitas.id, estado: schema.visitas.estado });
+      return creada;
+    });
+    if (!visita) return responderErrores({ fecha: MENSAJE_CHOQUE }, 409);
 
     logger.info("visita agendada", { visitaId: visita.id, placa: moto.placa, fecha, franja, servicio });
     return NextResponse.json(visita, { status: 201 });
