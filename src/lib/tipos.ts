@@ -40,5 +40,6 @@ export type VisitaDetalle = {
   calificacion: number | null;
   moto: { placa: string; marca: string; kmActual: number };
   domiciliario: { nombre: string; celular: string };
-  mecanico: MecanicoPerfil | null;
+  // HU-16: celular del mecánico, solo con la visita ASIGNADA (null en los demás estados).
+  mecanico: (MecanicoPerfil & { celular: string | null }) | null;
 };
