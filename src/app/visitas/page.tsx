@@ -1,6 +1,7 @@
 "use client";
 // HU-05: el domiciliario ve sus visitas con estado y, si está asignada, el mecánico.
 // HU-13: perfil verificado del mecánico y calificación de 1 a 5 al completar.
+// HU-15: el domiciliario cancela una visita que todavía no se ha hecho.
 import Link from "next/link";
 import { useState } from "react";
 import { EscenaEnCamino } from "@/components/escenas";
@@ -73,6 +74,7 @@ export default function MisVisitas() {
                   Buscando un mecánico cerca de tu moto…
                 </p>
               )}
+              <CancelarVisita visitaId={v.id} onCancelada={visitas.recargar} />
             </TarjetaVisita>
           ))}
         </div>
@@ -146,6 +148,30 @@ function Calificacion({ visita, onCalificada }: { visita: VisitaDetalle; onCalif
       {error && <p className="error">{error}</p>}
       <button className="boton pequeno" disabled={!valor || enviando} onClick={enviar}>
         {enviando ? "Enviando…" : "Enviar calificación"}
+      </button>
+    </div>
+  );
+}
+
+function CancelarVisita({ visitaId, onCancelada }: { visitaId: string; onCancelada: () => void }) {
+  const [error, setError] = useState<string>();
+  const [enviando, setEnviando] = useState(false);
+
+  async function cancelar() {
+    if (!window.confirm("¿Seguro que quieres cancelar esta visita?")) return;
+    setEnviando(true);
+    setError(undefined);
+    const r = await pedir(`/api/visitas/${visitaId}/cancelar`, { metodo: "PATCH" });
+    setEnviando(false);
+    if (!r.ok) return setError(r.errores.general);
+    onCancelada();
+  }
+
+  return (
+    <div style={{ marginTop: 12 }}>
+      <ErrorGeneral mensaje={error} />
+      <button className="boton secundario" disabled={enviando} onClick={cancelar}>
+        {enviando ? "Cancelando…" : "Cancelar visita"}
       </button>
     </div>
   );
