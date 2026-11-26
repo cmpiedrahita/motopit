@@ -43,6 +43,13 @@ export function clasificarParaMecanico<T extends VisitaConMecanico>(visitas: T[]
   };
 }
 
+// ─── HU-15: cancelar una visita que todavía no se ha hecho ─────────────────
+
+/** Cancela una visita. Solo PENDIENTE o ASIGNADA (lo decide cambiarEstado); si no, lanza error. */
+export function cancelarVisita(estado: EstadoVisita): EstadoVisita {
+  return cambiarEstado(estado, "CANCELADA");
+}
+
 // ─── HU-06: cerrar visita con trabajo y km ─────────────────────────────────
 
 export type DatosCierre = { trabajoRealizado: string; km: number };
