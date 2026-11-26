@@ -2,6 +2,7 @@
 // solo leen la base de datos y arman la forma que esperan las pantallas.
 import { and, desc, eq, isNotNull, type SQL } from "drizzle-orm";
 import { resumenCalificaciones, resumenDe } from "@/lib/calificaciones";
+import { puedeContactarMecanico } from "@/lib/contacto";
 import { recordatorioAceite } from "@/lib/mantenimiento";
 import type { MecanicoPerfil, Perfil, VisitaDetalle } from "@/lib/tipos";
 import { getDb, schema } from "./index";
@@ -56,6 +57,7 @@ export async function listarVisitas(condicion: SQL | undefined): Promise<VisitaD
           nombre: mecanicos.nombre,
           aniosExperiencia: mecanicos.aniosExperiencia,
           verificado: mecanicos.verificado,
+          celular: mecanicos.celular,
         },
       })
       .from(visitas)
@@ -72,7 +74,15 @@ export async function listarVisitas(condicion: SQL | undefined): Promise<VisitaD
     return {
       ...v,
       fecha: v.fecha.toISOString(),
-      mecanico: v.mecanico ? { ...v.mecanico, promedio, totalCalificaciones: total } : null,
+      mecanico: v.mecanico
+        ? {
+            ...v.mecanico,
+            // HU-16: el celular solo se comparte mientras el mecánico va en camino (visita ASIGNADA).
+            celular: puedeContactarMecanico(v.estado) ? v.mecanico.celular : null,
+            promedio,
+            totalCalificaciones: total,
+          }
+        : null,
     };
   });
 }

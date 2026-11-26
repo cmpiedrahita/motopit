@@ -2,6 +2,7 @@
 // HU-05: el domiciliario ve sus visitas con estado y, si está asignada, el mecánico.
 // HU-13: perfil verificado del mecánico y calificación de 1 a 5 al completar.
 // HU-15: el domiciliario cancela una visita que todavía no se ha hecho.
+// HU-16: con la visita ASIGNADA puede escribirle al mecánico por WhatsApp.
 import Link from "next/link";
 import { useState } from "react";
 import { EscenaEnCamino } from "@/components/escenas";
@@ -12,6 +13,8 @@ import { TarjetaVisita } from "@/components/TarjetaVisita";
 import { Aviso, Esqueleto, Estrellas, ErrorGeneral, Vacio } from "@/components/ui";
 import { puedeCalificar } from "@/lib/calificaciones";
 import { pedir } from "@/lib/cliente";
+import { enlaceWhatsApp, mensajeParaMecanico, puedeContactarMecanico } from "@/lib/contacto";
+import { formatearFecha } from "@/lib/formato";
 import type { VisitaDetalle } from "@/lib/tipos";
 
 export default function MisVisitas() {
@@ -67,6 +70,17 @@ export default function MisVisitas() {
                     <Icono nombre="check" tamano={16} grosor={2.5} /> {v.mecanico.nombre.split(" ")[0]} aceptó tu visita
                   </p>
                   <PerfilMecanico mecanico={v.mecanico} titulo="Tu mecánico" />
+                  {puedeContactarMecanico(v.estado) && v.mecanico.celular && (
+                    <a
+                      className="boton secundario"
+                      style={{ marginTop: 12 }}
+                      href={enlaceWhatsApp(v.mecanico.celular, mensajeParaMecanico(v.moto.placa, formatearFecha(v.fecha)))}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Icono nombre="telefono" tamano={18} /> Escribir por WhatsApp
+                    </a>
+                  )}
                 </>
               ) : (
                 <p className="buscando">
