@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { aceptarVisita, cambiarEstado, clasificarParaMecanico, puedeCambiarEstado, validarCierre } from "./visitas";
+import { aceptarVisita, cambiarEstado, cancelarVisita, clasificarParaMecanico, puedeCambiarEstado, validarCierre } from "./visitas";
 
 describe("ciclo de vida de una visita", () => {
   it("una visita pendiente puede ser aceptada por un mecánico", () => {
@@ -69,5 +69,32 @@ describe("HU-06: cerrar visita con trabajo y km", () => {
       ok: true,
       datos: { trabajoRealizado: "Cambio de aceite 20W-50", km: 10000 },
     });
+  });
+});
+
+describe("HU-15: cancelar una visita", () => {
+  it("una visita pendiente se puede cancelar", () => {
+    expect(cancelarVisita("PENDIENTE")).toBe("CANCELADA");
+  });
+
+  it("una visita asignada se puede cancelar", () => {
+    expect(cancelarVisita("ASIGNADA")).toBe("CANCELADA");
+  });
+
+  it("una visita completada no se puede cancelar", () => {
+    expect(() => cancelarVisita("COMPLETADA")).toThrow();
+  });
+
+  it("una visita cancelada no se puede volver a cancelar", () => {
+    expect(() => cancelarVisita("CANCELADA")).toThrow();
+  });
+
+  it("la visita cancelada deja de aparecerle al mecánico", () => {
+    const visitas = [
+      { id: "v1", estado: cancelarVisita("PENDIENTE"), mecanicoId: null },
+      { id: "v2", estado: cancelarVisita("ASIGNADA"), mecanicoId: "m1" },
+    ];
+    const { pendientes, asignadas } = clasificarParaMecanico(visitas, "m1");
+    expect([...pendientes, ...asignadas]).toEqual([]);
   });
 });
